@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>城市联动选择</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <script src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+    <script src="__ROOT__/public/admin/citys/select.js"></script>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    body{
+        padding: 10px;
+    }
+    li {
+        list-style: none;
+    }
+    
+    .clearfix:after {
+        content: '\20';
+        display: block;
+        height: 0;
+        clear: both
+    }
+    
+    .clearfix {
+        zoom: 1
+    }
+    
+    .box {
+        padding: 26px 0 0 26px;
+        margin-bottom: 10px;
+    }
+    
+    .select-box {
+        float: left;
+        width: 157px;
+        margin-right: 10px;
+        position: relative;
+    }
+    
+    .select-selected {
+        width: 120px;
+        padding: 8px 27px 8px 10px;
+        display: block;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    
+    .select-options-wraper {
+        position: absolute;
+        top: 40px;
+        width: 100%;
+        max-height: 400px;
+        overflow-y: scroll;
+        display: none;
+        background-color: #fff;
+        z-index: 2;
+    }
+    
+    .select-options li {
+        font-size: 12px;
+        text-indent: 10px;
+        line-height: 34px;
+        cursor: pointer;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="box clearfix">
+        <div class="select-box">
+            <span class="select-selected" data-id="-1"></span>
+            <div class="select-options-wraper">
+                <ul class="select-options">
+                    <li>请选择国家</li>
+                </ul>
+            </div>
+        </div>
+        <div class="select-box">
+            <span class="select-selected" data-id="-1"></span>
+            <div class="select-options-wraper">
+                <ul class="select-options">
+                    <li>请选择省份</li>
+                </ul>
+            </div>
+        </div>
+        <div class="select-box">
+            <span class="select-selected" data-id="-1"></span>
+            <div class="select-options-wraper">
+                <ul class="select-options">
+                    <li>请选择城市</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <blockquote class="layui-elem-quote">select(obj) Object</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>select接受一个配置对象。</p>
+        <p>html结构部分</p>
+        <pre class="layui-code">
+            &lt;div class="box clearfix"&gt;
+                &lt;div class="select-box"&gt;
+                    &lt;span class="select-selected" data-id="-1"&gt;&lt;/span&gt;
+                    &lt;div class="select-options-wraper"&gt;
+                        &lt;ul class="select-options"&gt;
+                            &lt;li&gt;请选择国家&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="select-box"&gt;
+                    &lt;span class="select-selected" data-id="-1"&gt;&lt;/span&gt;
+                    &lt;div class="select-options-wraper"&gt;
+                        &lt;ul class="select-options"&gt;
+                            &lt;li&gt;请选择省份&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="select-box"&gt;
+                    &lt;span class="select-selected" data-id="-1"&gt;&lt;/span&gt;
+                    &lt;div class="select-options-wraper"&gt;
+                        &lt;ul class="select-options"&gt;
+                            &lt;li&gt;请选择城市&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        </pre>
+        <p>js调用部分</p>
+        <pre class="layui-code">
+            var opts = {
+                rootUrl: '/zsrc/admin.php/citys/getcity',       // 获取第一个选项的数据
+                subUrl: '/zsrc/admin.php/citys/getparent/id/',  // 根据第一个选项用户选择的id获取第二、第三个选项的数据
+                selected: ['不限', '不限', '不限']              //  可以指定默认值（不推荐使用,如果需要可以直接在结构中添加）
+            }
+            
+            select(opts);
+
+        </pre>
+    </blockquote>
+    <script>
+    var opts = {
+        rootUrl: '/zsrc/admin.php/citys/getcity',
+        subUrl: '/zsrc/admin.php/citys/getparent/id/',
+        selected: ['不限', '不限', '不限']
+    }
+    select(opts);
+    </script>
+</body>
+
+</html>

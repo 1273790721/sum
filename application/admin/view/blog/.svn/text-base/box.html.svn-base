@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<style>
+body {
+    padding: 16px;
+}
+
+.pagination {
+    display: inline-block;
+    padding-left: 0;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.pagination>li {
+    display: inline;
+}
+
+.pagination>li>a,
+.pagination>li>span {
+    position: relative;
+    float: left;
+    padding: 6px 12px;
+    margin-left: -1px;
+    line-height: 1.42857143;
+    color: #337ab7;
+    text-decoration: none;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
+
+.pagination>.active>span {
+    background-color: #393D49;
+}
+</style>
+
+<body>
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-input-block" style="float: right;">
+                <a class="layui-btn" href="{:url('blog/index')}">返回上级</a>
+            </div>
+        </div>
+    </form>
+    <table class="layui-table">
+        <thead>
+            <tr>
+                <th>标题</th>
+                <th>作者</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach name="blogs" item="v"}
+            <tr>
+                <td>
+                    <a href="{:url('blog/upd')}?id={$v['id']}">{$v['title']}</a>
+                </td>
+                <td>{$v['author']}</td>
+                <td>{$v['create_time']}</td>
+                <td>
+                    <a href="javascript:;" onclick="pub({$v['id']});">发布</a>
+                </td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+    {$blogs->render()}
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+layui.use('code', function() {
+    layui.code({
+        encode: true,
+        elem: 'zi',
+    });
+})
+layui.use('layer', function() {
+    var layer = layui.layer;
+})
+
+function pub(id) {
+    layer.confirm('确定发布该条数据吗？', {
+            icon: 1,
+            title: '提示',
+            btn: ['确定', '取消']
+        },
+        function() {
+            $.ajax({
+                type: 'post',
+                url: "{:url('blog/pub')}",
+                data: {
+                    'id': id
+                },
+                dataType: 'json',
+                success: function(json) {
+                    if (json.code == 1) {
+                        layer.msg(json.msg);
+                        setTimeout(function() {
+                            window.location.reload();
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        }, 1000);
+                    } else if (json.code == 0) {
+                        layer.msg(json.msg);
+                    }
+                }
+            });
+        });
+}
+</script>
+
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>upload</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style>
+    body {
+        padding: 10px;
+    }
+    
+    #upload,
+    #submit,
+    #cancle {
+        width: 100px;
+        height: 32px;
+        cursor: pointer;
+        border-radius: 4px;
+        text-align: center;
+        line-height: 32px;
+        color: #fff;
+        font-size: 14px;
+        /*background-image: linear-gradient(to top,rgba(0,0,0,.2),rgba(0,0,0,.2));*/
+        background-color: #337ab7;
+        margin-bottom: 10px;
+    }
+    
+    #submit,
+    #cancle {
+        float: left;
+        width: 60px;
+        margin-right: 10px;
+        margin-top: 24px;
+    }
+    
+    #submit {
+        background-color: #5cb85c;
+    }
+    
+    #cancle {
+        background-color: #5bc0de;
+    }
+    
+    #progress {
+        height: 14px;
+        width: 300px;
+        background-color: #ccc;
+        margin-bottom: 60px;
+    }
+    
+    #inner {
+        height: 14px;
+        width: 0;
+        background-color: #337ab7;
+        transition: all 200ms;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="upload">上传文件</div>
+    <div id="submit">提交</div>
+    <div id="cancle">取消</div>
+    <div id="progress">
+        <div id="inner"></div>
+    </div>
+    <blockquote class="layui-elem-quote">upload(obj) Object</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>upload 组件仅为使用者提供一个方法，并且用户不需要在页面内写任何表单相关的元素即可实现单文件、多文件上传，为保证其灵活性，该组件不包含上传相关的样式需求。</p>
+        <p>Upload接受一个配置对象。以下为该组件演示用法：</p>
+        <pre class="layui-code">
+            upload({
+                el: '#upload',
+                url: ‘/api/upload’,
+                mutiple: 'mutiple',
+                onchange: function(list){
+                    console.log(list)
+                },
+                fileType: {
+                    type: ['txt','pdf','zip','json'],
+                    unsupport: function(unsupportType){
+                        alert（unsupportType + ‘该文件格式不支持！’）;
+                    }
+                },
+                maxSize: {
+                    size: 1000000,
+                    overdo: function(){
+                        alert('文件过大');
+                    }
+                },
+                autoSubmit: true,
+                submit: '#submit',
+                progress: function(loaded,total){
+                    console.log(loaded,total);
+                },
+                abort: function(stop){
+                    document.getElementById('cancle').addEventListener('click',function(){
+                        stop();
+                    });
+                },
+                complate: function(res){
+                    console.log(res);
+                }
+            });
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">1. el: string（需要）</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>el即为触发文件选择的元素。用户可以传入dom对象或者其ID选择器。</p>
+        <pre class="layui-code">
+            el: '#upload'
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">2. url: string (需要)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性用于指定文件上传地址。</p>
+        <pre class="layui-code">
+            url: ‘/api/upload’
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">3. mutiple: 'mutiple' string or boolean（可选）</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性可用于多文件上传。其后字符串可以给任意值，不过建议与示例同步。</p>
+        <pre class="layui-code">
+            mutiple: 'mutiple'
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">4. onchange：function（可选）</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该函数为用户提供一个change事件的接口，list包含了用户添加的文件数组，以便用户获取文件信息，并呈现在前端。</p>
+        <pre class="layui-code">
+           onchange：function（list）｛
+                console.log(list);
+           ｝
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">5. fileType：object（可选）</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>若没有此属性则表示上传文件格式不受约束。</p>
+        <p>5.1 type ：array（可选）数组中存放提供支持的格式。</p>
+        <pre class="layui-code">
+            type: ['txt','pdf','zip','json']
+        </pre>
+        <p>5.2 unsupport：function (可选) 该方法用于操作若用户上传格式不合法的提示，如果使用者设置了文件上传格式则建议添加该函数为用户设置友好提示,其中unsupportType返回的是用户上传的第一个不被支持的格式。</p>
+        <pre class="layui-code">
+            unsupport：function(unsupportType){
+                alert(unsupportType + '格式的文件不受支持！');
+            } 
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">6. maxSize：object (可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>若没有此属性则表示上传文件大小不受约束。</p>
+        <p>6.1 size：number（可选）size接受一个数值，并且单位是byte，用以限制上传文件大小。</p>
+        <pre class="layui-code">
+            size: 1000000
+        </pre>
+        <p>6.2 overdo：function (可选) 与fileType的unsupport作用相同。</p>
+        <pre class="layui-code">
+            overdo：function(){
+                alert('上传文件过大！');
+            } 
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">7. autoSubmit：boolean (可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性意为用户在选择完文件点击确认后即开始上传，不需要用户点击额外的上传按钮。</p>
+        <pre class="layui-code">
+           autoSubmit：true
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">8. submit: string(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性与autoSubmit互斥，用于用户自行进行文件提交,并指定提交按钮（凭id获取）。</p>
+        <pre class="layui-code">
+           submit：'#btn'
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">9. progress：function（可选）</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该方法用于用户自定义上传进度条（建议使用的时候对进度条变化的css田添加transition使进度条递增更为平滑），其中loaded为当前已经上传的大小，total为文件总大小。</p>
+        <pre class="layui-code">
+           progress: function(loaded, total) {
+                document.getElementById('inner').style.width = loaded * 100 / total + '%';
+            }
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">10. abort：functions (可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该方法为用户提供了一个在上传过程中取消上传的方法。在用户需要暂停的地方调用stop()即可。</p>
+        <pre class="layui-code">
+           document.getElementById('cancle').addEventListener('click',function(){
+                stop();
+            });
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">11. complete:function (可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该方法在上传结束时调用（不管上传成功与否），其中res为服务器传回的数据，与ajax的success函数相相似。</p>
+        <pre class="layui-code">
+           complete:function(res){
+                console.log(res);
+           }
+        </pre>
+    </blockquote>
+    <script src="__ROOT__/public/admin/upload/upload.js"></script>
+    <script>
+    upload({
+        el: '#upload',
+        url: "{:url('upload/index')}",
+        mutiple: 'mutiple',
+        onchange: function(list) {
+            // console.log(list)
+        },
+        fileType: {
+            // type: ['txt', 'pdf', 'zip', 'json'],
+            unsupport: function(unsupportType) {
+                console.log(unsupportType);
+            }
+        },
+        maxSize: {
+            // size: 1000000,
+            overdo: function() {
+                alert('文件过大');
+            }
+        },
+        autoSubmit: true,
+        submit: '#submit',
+        progress: function(loaded, total) {
+            console.log(loaded, total);
+            document.getElementById('inner').style.width = loaded * 100 / total + '%';
+        },
+        abort: function(stop) {
+            document.getElementById('cancle').addEventListener('click', function() {
+                stop();
+                document.getElementById('inner').style.width = 0;
+            });
+        },
+        complate: function(res) {
+            alert('上传完成！')
+        }
+    });
+    </script>
+</body>
+
+</html>

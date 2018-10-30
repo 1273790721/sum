@@ -1,0 +1,50 @@
+<?php
+namespace app\admin\controller;
+use think\Controller;
+use think\Request;
+use think\Db;
+class Tables extends Controller
+{
+	/**
+	 * @author liuqin
+     * @function 获取列表信息
+     * @time 2017-04-05
+	*/
+    public function index()
+    {
+        $list = db('submit','admin_db')->select();
+        foreach ($list as $k=>$v){
+            if($v['sex']==1){
+                $list[$k]['sex'] = '男';
+            }else{
+                $list[$k]['sex'] = '女';
+            }
+        }
+        $this->assign('lists',$list);
+       // var_dump($list);
+        return $this->fetch();
+    }
+    
+    /**
+     * @author liuqin
+     * @function 导出功能
+     * @time 2017-04-06
+	*/
+    public function export()
+    {
+        $list = db('submit','admin_db')->select();
+        foreach ($list as $k=>$v){
+            if($v['sex']==1){
+                $list[$k]['sex'] = '男';
+            }else{
+                $list[$k]['sex'] = '女';
+            }
+        }
+    	$file_name = '批量操作报表导出数据' . date('YmdGis');
+        $title_arr = array('姓名','性别','年龄','备注');
+        $keys = array('name','sex','age','mark');
+        $excel = new \Common\Logic\PhpExcelLogic();
+        $excel->exportExcel($list, $keys, $file_name, $title_arr);
+    }
+    
+}

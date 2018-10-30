@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Video</title>
+
+    <!-- 样式，ie支持，主体程序，配置文件：必须 -->
+    <link href="__ROOT__/public/admin/video/static/lib/css/video-js.css" rel="stylesheet">
+    <script src="__ROOT__/public/admin/video/static/lib/js/videojs-ie8.js"></script>
+    <script src="__ROOT__/public/admin/video/static/lib/js/video.js"></script>
+    <script src="__ROOT__/public/admin/video/static/js/vdj.config.js"></script>
+
+</head>
+<body>
+
+    <!-- 视频页面部分:可配置视频区域大小、封面图片等 -->
+    <video class="video-js vjs-default-skin" controls preload="none" width="800" height="600" poster="__ROOT__/public/admin/video/static/image/oceans.png" data-setup='{"techOrder": ["html5", "flash"]}'>
+        <source src="__ROOT__/public/admin/video/static/video/oceans.flv" type="video/x-flv">
+        <source src="__ROOT__/public/admin/video/static/video/oceans.mp4" type="video/mp4">
+        <source src="__ROOT__/public/admin/video/static/video/oceans.webm" type="video/webm">
+        <source src="__ROOT__/public/admin/video/static/video/oceans.ogv" type="video/ogg">
+        <!-- 不支持播放时给予提示 -->
+        <p class="vjs-no-js">该浏览器不支持HTML5和Flash视频播放，请安装Flash插件或更换浏览器Chrome或者FireFox！</p>
+    </video>
+
+</body>
+</html>

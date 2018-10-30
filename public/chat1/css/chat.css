@@ -1,0 +1,137 @@
+
+ *{
+    margin: 0 ;
+    padding: 0;
+ }
+ #div_wo {
+    text-align: right;
+    width:650px;
+} 
+ .contectList {
+     width: 300px;
+     float: left;
+  }
+  .fquestion {
+    position: absolute;
+    left: 1309px;
+    width: 300px;
+    border: solid 1px #bfbfbf;
+    border-left: 0;
+    overflow: hidden;
+    padding: 32px 0;
+    height: 774px;
+    background: #fff;
+  }
+  #div_wo {
+        float:right;
+  }
+  #div_ta {
+    text-align: left;
+    width: 650px;
+    display: -webkit-box;
+  }
+  #div_ta .rongcloud-Message-header  {
+    float: left;
+    width: 30px;
+    height: 30px;
+    margin-top: 0px;
+    margin-left: -41px;
+  }
+  #div_ta .rongcloud-Message-header img  {
+  margin-left: 0px;
+  }
+  #div_ta .rongcloud-Message-body textmessage  {
+    float: left;
+    height: auto;
+    padding: 2px;
+    max-width: 550px;
+    border: 1px solid #aaa;
+    line-height: 30px;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-radius: 7px;
+    padding-right: 10px;
+    display: inline-block;
+    text-align: left;
+    letter-spacing: 1px;
+    background-color: #E1E1E1;
+    }
+  .cList_top { padding: 39px 0; background: #1485d9; padding-left: 33px; }
+  .contectList { background: #565455; height: 840px; overflow:auto; }
+  .contectList ul li { list-style: none; height: 72px; padding: 0 33px; }
+  .contectList ul li span { float: left; margin-top: 25px;  display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width: 168px; }
+  .contectList ul li img { vertical-align: middle; float: left; margin-right: 22px; margin-top: 14px;}
+  .contectList ul li a { text-decoration: none; color: #fff; font-size: 14px; height: 72px; display: block; }
+  .contectList ul li.seleced {  background: #464444; }
+  .fquestion ul { padding-left: 53px;  overflow-y: hidden; width: 300px;}
+
+  .fquestion ul li { font-size: 14px; color: #333; margin-top: 18px; list-style: none;  display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width: 240px;}
+  #div_wo .rongcloud-Message-header  {
+    width: 30px;
+    float: right;
+    height: 30px;
+    margin-top: 0px;
+  }
+  #div_wo .rongcloud-Message-header img  {
+  float: right;
+    width: 30px;
+    height: 30px;
+    display: block;
+    margin-left: 0px;
+  }
+  #div_ta .rongcloud-Message-body  {
+  margin-left: 10px;
+  }
+  #div_wo .rongcloud-Message-body  {
+  margin-right: 50px;
+  }
+  #div_wo .rongcloud-Message-body textmessage  {
+    max-width: 550px;
+    border: 1px solid #76C8F0;
+    line-height: 30px;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-radius: 7px;
+    padding-right: 10px;
+    display: inline-block;
+    text-align: left;
+    background-color: #ABDAF8;
+    letter-spacing: 1px;
+  }
+  #div_wo .rongcloud-Message-body .topLevel  {
+    position: absolute;
+    top: 11px;
+    right: -8px;
+    border-bottom: 10px solid #ABDAF8;
+    border-right: 10px solid transparent;
+    z-index: 100;
+  }
+    #div_wo .rongcloud-Message-body .bottomLevel  {
+    position: absolute;
+    top: 10px;
+    right: -10px;
+    border-bottom: 10px solid #ABDAF8;
+    border-right: 10px solid transparent;
+  }
+   #div_ta .rongcloud-Message-body .bottomLevel  {
+  position: absolute;
+    top: 10px;
+    left: -10px;
+    border-top: 10px solid #aaa;
+    border-left: 10px solid transparent;
+    }
+   #div_ta .rongcloud-Message-body .topLevel  {
+    position: absolute;
+    top: 11px;
+    left: -8px;
+    border-top: 10px solid #E1E1E1;
+    border-left: 10px solid transparent;
+    z-index: 100;
+  }
+  .ng-scope  {
+  
+  height:auto;
+  margin-bottom: 20px;
+  }

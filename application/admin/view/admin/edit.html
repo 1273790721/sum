@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body style="padding: 16px;">
+	<form class="layui-form">
+        <input type='hidden' name='id' value='{$user.id}'>
+		<div class="layui-form-item">
+			<label class="layui-form-label">帐号：</label>
+			<div class="layui-input-block">
+				<input type="text" name="username" class="layui-input" lay-verify="required" value='{$user.username}'>
+			</div>
+		</div>
+        <div class="layui-form-item">
+			<label class="layui-form-label">密码：</label>
+			<div class="layui-input-block">
+				<input type="password" name="password" class="layui-input" lay-verify="" value="" >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">真实姓名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="true_name" class="layui-input" lay-verify="required" value='{$user.true_name}'>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">电话：</label>
+			<div class="layui-input-block">
+				<input type="text" name="telphone" class="layui-input" lay-verify="required" value='{$user.telphone}'>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">邮箱：</label>
+			<div class="layui-input-block">
+                <input type="text" name="email" class="layui-input" lay-verify="required" value='{$user.email}'>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">角色：</label>
+			<div class="layui-input-block">
+				<select class="layui-input" name="role_id" id="role_id" >
+                    <option value="">请选择所属角色</option>
+                    {foreach name="rule" item="val"}
+                         <option value="{$val.id}" {eq name="user['role_id']" value="$val['id']"}selected{/eq}>{$val.title}</option>
+                    {/foreach}
+                </select>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="*">提交</button>
+				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		</div>
+	</form>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+	layui.use('form', function(){
+		var form = layui.form();
+		form.on('submit(*)',function(data){
+			$.ajax({
+				url:"{:url('admin/edit')}",
+				type:'post',
+				data:data.field,
+				dataType:'json',
+				success:function(json){
+					layer.msg(json.msg);
+					if(json.code == 1){
+						setTimeout(function(){
+							parent.location.reload();
+	                        var index = parent.layer.getFrameIndex(window.name);
+	                        parent.layer.close(index);
+						},1000)
+					}
+				}
+			})
+			return false;
+		})
+	});
+</script>
+</html>

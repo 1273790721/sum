@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>网页转图片插件</title>
+    <link rel="stylesheet" href="__ROOT__/public/admin/createimg/static/css/style.css">
+</head>
+<body>
+    <div class="m-preview">
+        <div class="u-dom"></div>
+        <div class="u-domcopy"></div>
+        <div class="u-output"></div>
+    </div>
+    <div class="m-editor">
+        <label>编辑器</label>
+        <input id="e-title" type="text" name="title" placeholder="标题">
+        <input id="e-img" type="file" name="img"  placeholder="上传图片">
+        <textarea id="e-txt" placeholder="大段文字"></textarea>
+        <button id="btn-pv">生成预览图</button>
+        <button id="btn-di">生成图片</button>
+        <a class="download" download="download" href="">download</a>
+    </div>
+
+    <script src="__ROOT__/public/admin/createimg/static/lib/js/html2canvas.js"></script>
+    <script src="__ROOT__/public/admin/createimg/static/js/index.js"></script>
+</body>
+</html>

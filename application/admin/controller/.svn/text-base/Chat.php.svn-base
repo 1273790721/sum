@@ -1,0 +1,47 @@
+<?php
+namespace app\admin\controller;
+use think\Controller;
+class Chat extends Controller
+{
+	/**
+     * @author xiaoxue
+     * @function 在线聊天页面
+     * @time 2017-04-11
+    */
+    public function chat(){
+    	//以下应为注册用户时就生成一个用户的token
+    	$ry_token = "3zkEgGOA7jvqLTdFFdL/2LjcBpERswB+xvPesAqTnDs4PAk6fmwGZO2JDzLSEBFGL78f0dCLk2TyHmfw+sEbHA==";
+        $this->assign('ry_token',$ry_token);
+    	return $this->fetch();
+    }
+    /**
+     * @author xiaoxue
+     * @function 在线聊天获取用户信息与好友用户信息
+     * @time 2017-04-11
+    */
+	public function rongyun(){
+    //这里是获取好友的信息
+		$uid = 2;
+			$data2['id'] =  $uid;
+			$data2['name'] = '肖雪';
+			$data2['url'] = '/public/upload/user/icon/2017-04-07/20170411072552.jpeg';
+			$data2['portraitUri'] = 'http://localhost/zsrc'.$data2['url'];
+		
+		$data[]=$data2;
+		//这里应该获取当前登录的用户的信息,由于未做用户管理，暂无法获取对应信息，先写死
+		$id = 1;
+		$user = db('user','admin_db')->field('username,true_name,icon')->where('id',1)->find();
+			if(is_array($user)){
+			$data1['id'] =  $id;
+			$data1['name'] = $user['true_name'];
+			$data1['url'] = $user['icon'];
+			$data1['portraitUri'] = 'http://localhost/zsrc'.$data1['url'];
+			}
+		
+		$data[]=$data1;
+		echo json_encode($data);
+
+		
+	 }
+ 
+}

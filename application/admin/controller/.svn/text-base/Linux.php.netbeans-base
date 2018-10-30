@@ -1,0 +1,10 @@
+<?php
+namespace app\admin\controller;
+use think\Controller;
+class Linux extends Controller
+{
+    public function fuzai()
+    {
+        return $this->fetch();
+    }
+}

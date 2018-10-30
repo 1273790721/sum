@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>数据库主从复制</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+</head>
+<body>
+	<div class="admin-main">
+			<blockquote class="layui-elem-quote">
+				<p style="color: red;">主从复制概述</p>
+				<p>大型网站为了软解大量的并发访问，除了在网站实现分布式负载均衡，远远不够。到了数据业务层、数据访问层，如果还是传统的数据结构，或者只是单单靠一台服务器扛，如此多的数据库连接操作，数据库必然会崩溃，数据丢失的话，后果更是 不堪设想。这时候，我们会考虑如何减少数据库的联接，一方面采用优秀的代码框架，进行代码的优化，采用优秀的数据缓存技术,如果资金丰厚的话，必然会想到假设服务器群，来分担主数据库的压力。现在我们利用MySQL主从配置，实现读写分离，减轻数据库压力。</p>
+				<p style="color: red;">请注意当你进行复制时，所有对复制中的表的更新必须在主服务器上进行。否则，你必须要小心，以避免用户对主服务器上的表进行的更新与对从服务器上的表所进行的更新之间的冲突。
+				</p>
+				<p>1.1 mysql支持的复制类型：
+					<a href="#" target="_blank">（１）：基于语句的复制：  在主服务器上执行的SQL语句，在从服务器上执行同样的语句。MySQL默认采用基于语句的复制，效率比较高。     一旦发现没法精确复制时，   会自动选着基于行的复制。     </a>
+					<a href="#">（２）：基于行的复制：把改变的内容复制过去，而不是把命令在从服务器上执行一遍. 从mysql5.0开始支持</a>
+					<a href="#">（３）：混合类型的复制: 默认采用基于语句的复制，一旦发现基于语句的无法精确的复制时，就会采用基于行的复制。</a>
+				</p>
+				<p>1.2 . 复制解决的问题
+				<a href="#" target="_blank">   (1)    数据分布 (Data distribution )</a>
+					<a href="#">(2)    负载平衡(load balancing)</a>
+					<a href="#"> (3)    备份(Backups) </a>
+					<a href="#"> (4)    高可用性和容错行 High availability and failover </a>
+				</p>
+
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>mysql主从复制步骤</legend>
+				<div class="layui-field-box">
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>1、主从服务器分别作以下操作：</legend>
+						<div class="layui-field-box">
+							<p> 1.1、版本一致</p>
+							<p> 1.2、初始化表，并在后台启动mysql</p>
+							<p> 1.3、修改root的密码</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>2、修改主服务器master:</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;">  #vi /etc/my.cnf </cite></p>
+       						<p><cite style="color: #1AA094;">	[mysqld]</cite></p>
+       						<p><cite style="color: #1AA094;">	log-bin=mysql-bin   //[必须]启用二进制日志</cite></p>
+       						<p><cite style="color: #1AA094;">	server-id=222      //[必须]服务器唯一ID，默认是1，一般取IP最后一段</cite></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>3、修改从服务器slave:</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;"> #vi /etc/my.cnf</cite></p>
+       						<p><cite style="color: #1AA094;">  [mysqld]</cite></p>
+       						<p><cite style="color: #1AA094;"> log-bin=mysql-bin   //[不是必须]启用二进制日志</cite></p>
+       						<p><cite style="color: #1AA094;">  server-id=226      //[必须]服务器唯一ID，默认是1，一般取IP最后一段</cite></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>4、重启两台服务器的mysql:</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;"> /etc/init.d/mysql restart</cite></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>5、在主服务器上建立帐户并授权slave:</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;"> #/usr/local/mysql/bin/mysql -uroot -pmttang   </cite></p>
+       						<p><cite style="color: #1AA094;"> mysql>GRANT REPLICATION SLAVE ON *.* to 'mysync'@'%' identified by 'q123456'; //一般不用root帐号，</cite></p>
+       						<p><cite style="color: #1AA094;">&ldquo;%&rdquo;表示所有客户端都可能连，只要帐号，密码正确，此处可用具体客户端IP代替，如192.168.145.226，加强安全。</cite></p>
+						</div>
+					</fieldset>
+						<fieldset class="layui-elem-field layui-field-title">
+						<legend>6、登录主服务器的mysql，查询master的状态</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;">  mysql>show master status;</cite></p>
+       						<p><img src="../../public/beginneradmin/images/mysql1.png"></p>
+       						<p>注：执行完此步骤后不要再操作主服务器MYSQL，防止主服务器状态值变化</p>
+						</div>
+					</fieldset>
+						<fieldset class="layui-elem-field layui-field-title">
+						<legend>7、配置从服务器Slave：</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;">   mysql>change master to </cite></p>
+       						<p><cite style="color: #1AA094;"> master_host='192.168.145.222',master_user='mysync',master_password='q123456', </cite></p>
+       						<p><cite style="color: #1AA094;">     master_log_file='mysql-bin.000004',master_log_pos=308;   //注意不要断开，308数字前后无单引号。
+ 							</cite></p>
+ 							<p><cite style="color: #1AA094;"> Mysql>start slave;    //启动从服务器复制功能</cite></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>8、检查从服务器复制功能状态：</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;"> mysql> show slave status\G</cite></p>
+       						<p>*************************** 1. row ***************************</p>
+       						<p><cite style="color: #1AA094;"> Slave_IO_State: Waiting for master to send event
+ 							</cite></p>
+ 							<p><cite style="color: #1AA094;"> Master_Host: 192.168.2.222  //主服务器地址</cite></p>
+ 							<p><cite style="color: #1AA094;">  Master_User: mysync   //授权帐户名，尽量避免使用root</cite></p>
+ 							<p><cite style="color: #1AA094;"> Master_Port: 3306    //数据库端口，部分版本没有此行</cite></p>
+ 							<p><cite style="color: #1AA094;">  Connect_Retry: 60</cite></p>
+ 							<p><cite style="color: #1AA094;"> Master_Log_File: mysql-bin.000004</cite></p>
+ 							<p><cite style="color: #1AA094;">  Read_Master_Log_Pos: 600     //#同步读取二进制日志的位置，大于等于Exec_Master_Log_Pos</cite></p>
+ 							<p><cite style="color: #1AA094;"> Relay_Log_File: ddte-relay-bin.000003</cite></p>
+ 							<p><cite style="color: #1AA094;">  Relay_Log_Pos: 251</cite></p>
+ 							<p><cite style="color: #1AA094;"> Relay_Master_Log_File: mysql-bin.000004</cite></p>
+ 							<p><cite style="color: #1AA094;"> Slave_IO_Running: Yes    //此状态必须YES</cite></p>
+ 							<p><cite style="color: #1AA094;"> Slave_SQL_Running: Yes     //此状态必须YES</cite></p>
+ 							<p><cite style="color: #1AA094;">     ......</cite></p>
+ 							<p>注：Slave_IO及Slave_SQL进程必须正常运行，即YES状态，否则都是错误的状态(如：其中一个NO均属错误)。</p>
+ 							<p>以上操作过程，主从服务器配置完成。</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>9、主从服务器测试：</legend>
+						<div class="layui-field-box">
+							<p>主服务器Mysql，建立数据库，并在这个库中建表插入一条数据：</p>
+       						<p><cite style="color: #1AA094;"> mysql> create database hi_db;</cite></p>
+       						<p><cite style="color: #1AA094;"> Query OK, 1 row affected (0.00 sec)</cite></p>
+ 							<p><cite style="color: #1AA094;">  mysql> use hi_db;</cite></p>
+ 							<p><cite style="color: #1AA094;">  Database changed</cite></p>
+ 							<p><cite style="color: #1AA094;">   mysql>  create table hi_tb(id int(3),name char(10));</cite></p>
+ 							<p><cite style="color: #1AA094;">  Query OK, 0 rows affected (0.00 sec)</cite></p>
+ 							<p><cite style="color: #1AA094;"> mysql> insert into hi_tb values(001,'bobu');</cite></p>
+ 							<p><cite style="color: #1AA094;">  Query OK, 1 row affected (0.00 sec)</cite></p>
+ 							<p><cite style="color: #1AA094;">  mysql> show databases;</cite></p>
+ 							<p><img src="__ROOT__/public/beginneradmin/images/mysql2.png"></p>
+ 							<p>从服务器Mysql查询：</p>
+ 							<p><cite style="color: #1AA094;">  mysql> show databases;</cite></p>
+ 							<p><img src="__ROOT__/public/beginneradmin/images/mysql3.png"></p>
+ 							<p><img src="__ROOT__/public/beginneradmin/images/mysql4.png"></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>10、完成:</legend>
+						<div class="layui-field-box">
+							<p> 编写一shell脚本，用nagios监控slave的两个yes（Slave_IO及Slave_SQL进程），如发现只有一个或零个yes，就表明主从有问题了，发短信警报吧。</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>11、若是发现配置错误，这里有删除主从信息的方法:</legend>
+						<div class="layui-field-box">
+							<p> 原来配置的是主主同步，后经调整后配置成主从同步，需要清楚主配置上的同步信息，</p>
+							<p><img src="__ROOT__/public/beginneradmin/images/mysql5.png"></p>
+							<p>解决办法如下：</p>
+							<p><cite style="color: #1AA094;"> mysql>change master to master_host=' ';</cite></p>
+							<p>即可成功删除同步用户信息。</p>
+							<p>注意：上面的命令报错的原因，为master_host=' ' 里面必须有内容，即使为空，也应该用空格代替，而不能什么都不写。</p>
+						</div>
+					</fieldset>
+				</div>
+			</fieldset>
+		</div>
+</body>
+<script type="text/javascript">
+	var root = "__ROOT__";
+</script>
+</html>

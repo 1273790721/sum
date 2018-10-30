@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>文本编辑器</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/wangEditor.css">
+</head>
+<body>
+	 <div style="width: 1100px;margin: 20px;">
+        <div id="editor" style="height:200px;">
+            <p>请输入内容...</p>
+        </div>
+    </div>
+
+    <script src="__ROOT__/public/beginneradmin/js/jquery-2.2.1.js"></script>
+    <script src="__ROOT__/public/beginneradmin/js/wangEditor.js"></script>
+    <script>
+        var editor = new wangEditor('editor');
+        editor.config.uploadImgUrl = "{:url('upload/wang_upload_img')}";
+        
+        //关闭粘贴样式过滤
+        editor.config.pasteFilter = false;
+        
+        editor.create();
+
+        $('#editor').click(function () {
+            if ($($('#editor p')[0]).html() === '请输入内容...') {
+                $($('#editor p')[0]).remove();
+            }
+        })
+    </script>
+     <fieldset class="layui-elem-field">
+				<legend>富文本编辑器(lite)</legend>
+				<div class="layui-field-box">
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>基于wangEditor的轻量级富文本编辑器;在文件夹下提取相应的文件使用，基本使用如下</legend>
+						
+						<div class="layui-field-box">
+							<p><img src="../../public/beginneradmin/images/editer.png"></p>
+                          </div>
+                          </fieldset>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>layer</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style>
+    body {
+        font-size: 14px;
+        color: #333;
+        padding: 10px;
+    }
+    
+    #during,
+    #text {
+        text-indent: 10px;
+    }
+    
+    label {
+        margin: 0 6px;
+    }
+    
+    .info {
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .box {
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <button id="btn">点击显示</button>
+        <button id="close">点击关闭</button>
+        <label for="">文字内容</label>
+        <input type="text" id="text" value="hello world">
+    </div>
+    <blockquote class="layui-elem-quote">layer.loading(obj) Object</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该方法用法与layer.msg()非常类似，差别在于此处没有during来控制显示的时间，即用户需要在自己的加载动作完成后自行调用layer.close()来关闭(只有loading刻可以调用该方法关闭)。</p>
+        <pre class="layui-code">
+            layer.loading({
+                css: {
+                    width: '100px',
+                    backgroundPosition: 'center 16px',
+                    padding: '60px 0 0 0',
+                    fontSize: '12px'
+                },
+                text: '加载中'，
+                loadingImg: ‘’
+            })
+            
+            document.getElementById('close').addEventListener('click', function() {
+                layer.close();
+            });
+
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">1. text: string(需要)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该选项定义了所要显示的文字信息</p>
+        <pre class="layui-code">
+            text: 'hello world'
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">2. css: object(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该选项用于设置loading的样式，目前支持的参数有：width,height,lineHeight(如果传入连字符属性请以驼峰方式命名) ，backgroundColor,backgroundImage,backgroundSize,backgroundPosition,fontSize,padding,top,color,borderRadius,transition(过渡动画)，boxShadow,overflow。</p>
+        <pre class="layui-code">
+            css: {
+                top: '20%',
+                fontSize: '14px'
+                ...
+            }
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">3. loadingImg: String(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性用于定义loading的图片，图片的默认大小为30*30用户可在backgroundSize选项对图片大小进行设置</p>
+        <pre class="layui-code">
+            loadingImg: '__ROOT__/public...'
+        </pre>
+    </blockquote>
+    <script src="__ROOT__/public/admin/layer/layer.js"></script>
+    <script>
+    function $(id) {
+        return document.getElementById(id)
+    };
+    var btn = $('btn');
+    var close = $('close');
+
+    btn.addEventListener('click', function() {
+        var text = $('text').value;
+
+        layer.loading({
+            css: {
+                width: '100px',
+                backgroundPosition: 'center 16px',
+                padding: '60px 0 0 0',
+                fontSize: '12px'
+            },
+            text: text
+        });
+    });
+
+    close.addEventListener('click', function() {
+        layer.close();
+    });
+    </script>
+</body>
+
+</html>

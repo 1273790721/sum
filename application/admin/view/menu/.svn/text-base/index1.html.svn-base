@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="ThemeBucket">
+  <link rel="shortcut icon" href="#" type="image/png">
+
+  <title>Editable Table</title>
+
+  <!--data table-->
+	<link rel="stylesheet" href="__ROOT__/public/easyui/themes/material/easyui.css">
+    <link rel="stylesheet" href="__ROOT__/public/easyui/themes/icon.css">
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    
+  
+</head>
+
+<body class="sticky-header">
+
+<section>
+
+    
+    <!-- main content start-->
+    <div class="main-content" >
+
+        <include file="Public:head"/>
+
+        <!-- page heading start-->
+        <div class="page-heading">
+            <h3>
+                Editable Table
+            </h3>
+            <ul class="breadcrumb">
+                <li>
+                    <a href="#">Dashboard</a>
+                </li>
+                <li>
+                    <a href="#">Data Table</a>
+                </li>
+                <li class="active"> Editable Table </li>
+            </ul>
+        </div>
+        <!-- page heading end-->
+
+        <!--body wrapper start-->
+        <div class="wrapper">
+             <div class="row">
+                <div class="col-sm-12">
+                <section class="panel">
+                <header class="panel-heading">
+                    Editable Table
+                    <span class="tools pull-right">
+                        <a href="javascript:;" class="fa fa-chevron-down"></a>
+                        <a href="javascript:;" class="fa fa-times"></a>
+                     </span>
+                </header>
+                <div class="panel-body">
+                <div class="adv-table editable-table ">
+                <div class="clearfix">
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="add()">
+                            添加 <i class="fa fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="space15"></div>
+				<table class="table table-striped table-hover table-bordered" id="tree"></table>
+               
+                </div>
+                </div>
+                </section>
+                </div>
+                </div>
+        </div>
+        <!--body wrapper end-->
+
+
+    </div>
+    <!-- main content end-->
+</section>
+
+<!-- Placed js at the end of the document so the pages load faster -->
+<!--<script src="__PUBLIC__/adminex/js/jquery-1.10.2.min.js"></script>
+<script src="__PUBLIC__/adminex/js/jquery-ui-1.9.2.custom.min.js"></script>
+<script src="__PUBLIC__/adminex/js/jquery-migrate-1.2.1.min.js"></script>
+<script src="__PUBLIC__/adminex/js/bootstrap.min.js"></script>
+<script src="__PUBLIC__/adminex/js/modernizr.min.js"></script>
+<script src="__PUBLIC__/adminex/js/jquery.nicescroll.js"></script>-->
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+
+<!-- END JAVASCRIPTS -->
+<script>
+    jQuery(document).ready(function() {
+        EditableTable.init();
+    });
+	$(function(){
+    initTable();
+    $(window).resize(function(){
+        initTable();
+    });
+})
+function initTable() {
+    $('#tree').treegrid({
+        url: "{:url('menu/ajax_tree')}",//这里为后台请求地址{:U('Nav/add')}
+        rownumbers: true,
+        idField: 'i',
+        animate:true,
+        treeField: 'tree_name',
+        columns: [
+			[{
+                field: 'i',
+                title: '序号',
+                align: 'left',
+                width: "5%"
+            },{
+                field: 'tree_name',
+                title: '菜单',
+                align: 'left',
+                width: "80%"
+            },{
+                field: 'null',
+                title: '操作',
+                align: 'left',
+				width: "15%",
+				formatter: function(value, row, index) {
+                    return '<a href="javascript:;" style="font-size:14px;margin-right:17px; color:#7a7676;" onclick="edit(' + row.id + ')">编辑</a><a href="javascript:;" style="font-size:14px;margin-right:17px; color:#7a7676;"  onclick="del(' + row.id + ')">删除</a>';
+                           
+                }
+			}]
+        ]
+    });
+}
+</script>
+<script type="text/javascript">
+    layui.use('layer',function(){
+        var layer = layui.layer;
+    })
+    function add(){
+        layer.open({
+            type: 2,
+            title: '添加',
+            maxmin: true,
+            shadeClose: false,
+            area: ['900px','600px'],
+            content: ["{:url('menu/add')}"]
+        })
+    }
+    function edit(id){
+        layer.open({
+            type: 2,
+            title: '编辑',
+            maxmin: true,
+            shadeClose: false,
+            area: ['900px','600px'],
+            content: ["{:url('menu/edit')}?id="+id]
+        })
+    }
+	function del(id) {
+            layer.confirm('确定删除该数据吗？', {
+                    icon: 3,
+                    title: '提示',
+                    btn: ['确定', '取消']
+                },
+                function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{:url('menu/del')}",
+                        data: 'id=' + id,
+                        success: function(json) {
+                            var dataObj = eval("(" + json + ")");
+                            if(dataObj.code) {
+                                layer.msg(dataObj.msg);
+                                setInterval(function() {
+                                    window.location.reload();
+                                    var index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
+                                    
+                                }, 1000);
+                            } else {
+                                layer.msg(dataObj.msg);
+                            }
+                        }
+                    });
+                },
+                function() {
+                    var index = layer.open();
+                    layer.close(index);
+                });
+        }
+</script>
+</body>
+</html>

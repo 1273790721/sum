@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<style>
+	.main{
+		width: 1200px;
+		min-height: 800px;
+		border: 1px solid #d6d6d6;
+		margin: 10px auto;
+	}
+	.art{
+		width: 100%;
+		height: 50px;
+		border: 1px solid #d6d6d6;
+		background-color: #1E9FFF;
+		font-size: 16px;
+		color: #fbfbfb;
+		line-height: 50px;
+		text-indent: 2em;
+	}
+	.title{
+		width: 100%;
+		height: 50px;
+		border: 1px solid #d6d6d6;
+		line-height: 50px;
+		text-indent: 2em;
+	}
+	.label{
+		width: 100%;
+		height: 50px;
+		border: 1px solid #d6d6d6;
+		line-height: 50px;
+		text-indent: 2em;
+	}
+	.content{
+		width: 100%;
+		height: 500px;
+		border: 1px solid #d6d6d6;
+		text-indent: 2em;
+	}
+	.opt{
+		width: 100%;
+		height: 50px;
+		border: 1px solid #d6d6d6;
+		line-height: 50px;
+		text-indent: 2em;
+	}
+	.box{
+		width: 100%;
+		height: 100px;
+		border: 1px solid #d6d6d6;
+		text-indent: 2em;
+	}
+	.reply{
+		margin-top: 50px;
+		width: 100%;
+		min-height: 200px;
+		border: 1px solid #d6d6d6;
+		text-indent: 2em;
+	}
+	.user{
+		width: 100%;
+		height: 30px;
+		text-indent: 2em;
+	}
+	.time{
+		width: 100%;
+		height: 20px;
+		line-height: 20px;
+		text-indent: 2em;
+	}
+	#reply{
+		float: right;
+	}
+	.comm_content{
+		width: 100%;
+		min-height: 50px;
+		line-height: 20px;
+		text-indent: 2em;
+	}
+	.comm_reply{
+		width: 100%;
+		min-height: 50px;
+		line-height: 20px;
+		text-indent: 2em;
+	}
+	.reply_box{
+		width: 100%;
+		height: 100px;
+		border: 1px solid #d6d6d6;
+		text-indent: 2em;
+		display: none;
+	}
+</style>
+<body>
+	<div class="main">
+		<div class="art">正文</div>
+		<div class="title">{$blog['title']}&nbsp;&nbsp;（{$blog['update_time']}）</div>
+		<div class="label">标签：{$blog['keyword']}</div>
+		<div class="content">{$blog['content']}</div>
+		<div class="opt">
+			<span onclick="like(this,{$blog['id']})" style="cursor: pointer;">获赞：{$blog['like']}</span>
+			<span>评论：{$blog['reply_number']}</span>
+			<span onclick="zhuan({$blog['id']})" style="cursor: pointer;">转载：{$blog['reprint_num']}</span>
+		</div>
+		<div class="box">
+			<textarea id="comment" class="layui-textarea" placeholder="请输入评论内容"></textarea>
+			<button id="button" class="layui-btn">评论</button>
+		</div>
+		{notempty name="comments"}
+			{foreach name="comments" item="v"}
+				<div class="reply">
+					<div class="user">
+						<span>{$v['create_username']}</span>
+						<button id="reply" class="layui-btn">回复</button>
+					</div>
+					<div class="time">{$v['create_time']}</div>
+					<div class="comm_content">{$v['content']}</div>
+					{foreach name="v['replys']" item="vv"}
+						<div class="comm_reply">{$vv['create_username']}回复{$vv['reply_username']}：{$vv['content']}</div>
+					{/foreach}
+					<div class="reply_box">
+						<textarea class="layui-textarea" placeholder="请输入回复内容"></textarea>
+						<button class="layui-btn" onclick="reply(this,{$v['id']})">回复</button>
+					</div>
+				</div>
+			{/foreach}
+		{/notempty}
+	</div>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+	layui.use('layer',function(){
+		var layer = layui.layer;
+	})
+	$('#button').on('click',function(){
+		var content = $('#comment').val();
+		if($.trim(content) == ''){
+			layer.msg('请输入评论内容');return false;
+		}
+		var id = "{$blog['id']}";
+		$.ajax({
+			url:"{:url('blog/judge_comment')}",
+			type:'post',
+			data:{'id':id},
+			dataType:'json',
+			success:function(json){
+				if(json.code == '1'){
+					$.ajax({
+						url:"{:url('blog/comment')}",
+						type:'post',
+						data:{'id':id,'content':content,'type':0},
+						dataType:'json',
+						success:function(json){
+							layer.msg(json.msg);
+							if(json.code == '1'){
+								setTimeout(function(){
+									window.location.reload();
+								},1000)
+							}
+						}
+					})
+				}else{
+					layer.msg(json.msg);
+				}
+			}
+		})		
+	})
+	$('#reply').on('click',function(){
+		var box = $(this).parent().parent().find('.reply_box');
+		if(box.css('display') == 'block'){
+			box.css('display','none');
+		}else{
+			box.css('display','block');
+		}
+	})
+	function reply(e,id){
+		var content = $(e).parent().find('textarea').val();
+		if($.trim(content) == ''){
+			layer.msg('请输入评论内容');return false;
+		}
+		$.ajax({
+			url:"{:url('blog/comment')}",
+			type:'post',
+			data:{'id':id,'content':content,'type':1},
+			dataType:'json',
+			success:function(json){
+				layer.msg(json.msg);
+				if(json.code == '1'){
+					setTimeout(function(){
+						window.location.reload();
+					},1000)
+				}
+			}
+		})
+	}
+	function zhuan(id){
+		$.ajax({
+			url:"{:url('blog/judge_reprint')}",
+			type:'post',
+			data:{'id':id},
+			dataType:'json',
+			success:function(json){
+				if(json.code == '1'){
+					$.ajax({
+						url:"{:url('blog/reprint')}",
+						type:'post',
+						data:{'id':id},
+						dataType:'json',
+						success:function(json){
+							layer.msg(json.msg);
+							if(json.code == '1'){
+								setTimeout(function(){
+									window.location.reload();
+								},1000)
+							}
+						}
+					})
+				}else{
+					layer.msg(json.msg);
+				}
+			}
+		})
+	}
+	function like(e,id){
+		$.ajax({
+			url:"{:url('blog/like')}",
+			type:'post',
+			data:{'id':id},
+			dataType:'json',
+			success:function(json){
+				//console.log(json);return false;
+				if(json.code == '1'){
+					$(e).html('获赞：'+json.result);
+				}else{
+					layer.msg(json.msg);
+				}
+			}
+		})
+	}
+</script>
+</html>

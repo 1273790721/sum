@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Hello, World</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style type="text/css">
+    html {
+        height: 100%
+    }
+    
+    body {
+        height: 100%;
+        margin: 0px;
+        padding: 10px
+    }
+    
+    #container {
+        width: 100%;
+        height: 400px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+    }
+    
+    #results {
+        position: absolute;
+        width: 200px;
+        top: 40px;
+        left: 32px;
+    }
+    
+    .BMap_bubble_title {
+        font-size: 14px;
+    }
+    
+    .BMap_bubble_content {
+        font-size: 13px;
+    }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=mxQlZqdacv0qMQRdmu6yBZjIkEXtXe9E">
+    //v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
+    //v1.4版本及以前版本的引用方式：src="http://api.map.baidu.com/api?v=1.4&key=您的密钥&callback=initialize"
+    </script>
+    <script src="__ROOT__/public/admin/map/map.js"></script>
+</head>
+
+<body>
+    <div id="container">
+    </div>
+    <blockquote class="layui-elem-quote">new map(obj) Object</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>Map的使用非常简单，简单的一个调用即可实现最大众化的地图需求，因为百度api已经提供了相当全面的接口，因此如果想要更多自定义的东西请参阅http://lbsyun.baidu.com/index.php?title=jspopular/guide/introduction</p>
+        <p>注意：在此之前需要先引入百度地图的js文件 v2.0版本的引用方式：src=http://api.map.baidu.com/api?v=2.0&ak=您的密钥</p>
+        <pre class="layui-code">
+            var map = new map({
+                el: '#container',   
+                point: [114.438814, 30.510813],
+                zoom: 18,
+                wheelZoom: true,
+                markers: [{
+                    lng: 114.429364,
+                    lat: 30.548981
+                }, {
+                    lng: 114.524,
+                    lat: 30.598
+                }],
+                // markerImg: '__PUBLIC__/images/friends.png',
+                control: true,
+                infoWindow: {
+                    title: '武汉必腾移动科技有限责任公司',
+                    width: 240,
+                    height: 80,
+                    content: '地址：武汉市东湖开发区珞瑜东路佳园路慧谷时空大厦604室'
+                },
+                showLocation: true
+            });
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">1. showLocation: boolean(开发阶段用)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性是为了开发期间想要获取某位置的精确坐标而存在，使用者只需要点击该位置便可从控制台读取相关的坐标信息。</p>
+        <pre class="layui-code">
+            showLocation: true
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">2. el: String(需要)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该参数需要用户来指定地图容器，需要id选择器来标识。</p>
+        <pre class="layui-code">
+            el: ’#container’
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">3. point: Array(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该参数用于指定当前地图的中心点，如果不传入，则会根据用户所在市的中心为中心点（经度纬度的获取方法请参照showLocation说明）。</p>
+        <pre class="layui-code">
+            point: [114.438814, 30.510813] 
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">4. zoom: Number(需要)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该参数用于设置地图的缩放级别，根据需要建议取值在20以下。</p>
+        <pre class="layui-code">
+            zoom: 18
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">5. wheelZoom：Boolean(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该参数用于设置用户是否可以通过鼠标滚轮缩放地图。</p>
+        <pre class="layui-code">
+            wheelZoom: true
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">6. markers: Array(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该参数用于指定地图范围内的标记点（经度纬度的获取方法请参照showLocation说明）。</p>
+        <img class="markers" src="__ROOT__/public/admin/map/markers.png" alt="">
+        <pre class="layui-code">
+            markers: [{
+            lng: 114.429364,
+            lat: 30.548981
+        }, {
+            lng: 114.524,
+            lat: 30.598
+        }]
+        </pre>
+
+    </blockquote>
+    <blockquote class="layui-elem-quote">7. markerImg: String(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该参数用于指定标记的图片。</p>
+        <pre class="layui-code">
+            markerImg: '/public/images/friends.png'
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">8. control: Boolean (可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性用于确定地图控制控件的显示隐藏。</p>
+        <img class="markers" src="__ROOT__/public/admin/map/ctrl.png" alt="">
+        <pre class="layui-code">
+            control: true
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">9. infoWindow：Object(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>该属性为当前地图中心点指定一个名片如下图。</p>
+        <img class="markers" src="__ROOT__/public/admin/map/mingpian.png" alt="">
+        <pre class="layui-code">
+            infoWindow: {
+                title: '武汉必腾移动科技有限责任公司',    //  指定名片的标题
+                width: 240,                             //  指定名片的宽高
+                height: 80,
+                content: '地址：武汉市东湖开发区珞瑜东路佳园路慧谷时空大厦604室'   //  指定名片的详细内容
+            }
+        </pre>
+    </blockquote>
+    <script type="text/javascript">
+    var map = new map({
+        el: '#container',
+        point: [114.438814, 30.510813],
+        zoom: 18,
+        wheelZoom: true,
+        markers: [{
+            lng: 114.429364,
+            lat: 30.548981
+        }, {
+            lng: 114.524,
+            lat: 30.598
+        }],
+        // markerImg: '__PUBLIC__/images/friends.png',
+        control: true,
+        infoWindow: {
+            title: '武汉必腾移动科技有限责任公司',
+            width: 240,
+            height: 80,
+            content: '地址：武汉市东湖开发区珞瑜东路佳园路慧谷时空大厦604室'
+        },
+        showLocation: true
+    });
+    
+
+    // window.setTimeout(function(){  
+    //     map.panTo(new BMap.Point(119.409, 39.918));    跳到某位置
+    // }, 2000);
+
+    //   
+    // map.addControl(new BMap.ScaleControl());       //比例尺  
+    // map.addControl(new BMap.OverviewMapControl());
+    // map.addControl(new BMap.MapTypeControl());    
+    // map.setCurrentCity("北京"); // 仅当设置城市信息时，MapTypeControl的切换功能才能可用
+
+
+
+    // var myIcon = new BMap.Icon("__PUBLIC__/images/markers.jpg", new BMap.Size(23, 25), {
+    // 指定定位位置。   
+    // 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+    // 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+    // 图标中央下端的尖角位置。    
+    // offset: new BMap.Size(30, 30),
+    // 设置图片偏移。   
+    // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+    // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+    // imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移    
+    // });
+
+
+
+    // var marker = new BMap.Marker(point, {
+    // icon: myIcon
+    // }); // 创建标注    
+    // map.addOverlay(marker); // 将标注添加到地图中
+
+
+    // marker.addEventListener('click', function() { //给标注添加点击时事件
+    // alert(1);
+    // })
+
+    // marker.enableDragging();
+    // marker.addEventListener("dragend", function(e) {
+    // alert("当前位置：" + e.point.lng + ", " + e.point.lat);
+    // })
+
+    // var opts = {
+    // width: 250, // 信息窗口宽度    
+    // height: 100, // 信息窗口高度    
+    // title: "Hello" // 信息窗口标题   
+    // }
+    // var infoWindow = new BMap.InfoWindow("World", opts); // 创建信息窗口对象    
+    // map.openInfoWindow(infoWindow, map.getCenter()); // 打开信息窗口
+
+    // var polyline = new BMap.Polyline([
+    // new BMap.Point(114.430, 30.511),
+    // new BMap.Point(114.429, 30.505)
+    // ], {
+    // strokeColor: "blue",
+    // strokeWeight: 6,
+    // strokeOpacity: 0.5
+    // });
+    // map.addOverlay(polyline);
+    // map.addEventListener('click', function(e) { //点击的坐标
+    // console.log(e.point);
+    // });
+    // 
+    // 
+    // var tilelayer = new BMap.TileLayer(); // 创建地图层实例    
+    // tilelayer.getTilesUrl = function() { // 设置图块路径     
+    // return "__PUBLIC__/images/markers.jpg";
+    // };
+    // map.addTileLayer(tilelayer);  
+
+    // var local = new BMap.LocalSearch(map, {      
+    //       renderOptions:{map: map}      
+    // });      
+    // local.search("慧谷时空");     
+
+
+    // var local = new BMap.LocalSearch(map, {
+    // renderOptions: {
+    // map: map,
+    // panel: "results"
+    // },
+    // onSearchComplete: function(rersults) {
+    // console.log(results.getPoi(0))
+    // }
+    // 
+    // });
+    // local.searchNearby("小吃", "前门");
+    // local.searchInBounds("银行", map.getBounds()); // 矩形搜索
+
+
+    // var transit = new BMap.TransitRoute(map, {
+    //     renderOptions: {
+    //         map: map,
+    //         panel: "results"
+    //     }
+    // });
+    // transit.search("王府井", "西单");
+
+    // var driving = new BMap.DrivingRoute(map, {
+    // renderOptions: {
+    // map: map,
+    // panel: "results",
+    // autoViewport: true
+    // }
+    // });
+    // driving.search("中关村", "天安门");
+    // 
+    // 
+    // var stCtrl = new BMap.PanoramaControl();
+    // stCtrl.setOffset(new BMap.Size(20, 20));
+    // map.addControl(stCtrl);
+    // 
+    // var panorama = new BMap.Panorama('panorama');
+    // panorama.setPosition(new BMap.Point(116.403925, 39.913903)); //坐标点在天安门
+    // 
+    // var labelPosition = new BMap.Point(116.403925, 39.913903);
+    // var labelOptions = {
+    // position: labelPosition,
+    // altitude: 5
+    // }; //设置标注点的经纬度位置和高度
+    // var label = new BMap.PanoramaLabel('自定义标注-天安门广场', labelOptions); //创建全景标注对象
+    // panorama.addOverlay(label); //在全景地图里添加该标注
+    // panorama.setPov(label.getPov()); //修改点的视角，朝向该label
+    // 
+    // var mapStyle = [{
+    // "featureType": "background",
+    // "elementType": "geometry.fill",
+    // "stylers": {
+    // "color": "#444444"
+    // }
+    // }];
+    // map.setMapStyle({
+    // styleJson: mapStyle
+    // });
+    </script>
+</body>
+
+</html>

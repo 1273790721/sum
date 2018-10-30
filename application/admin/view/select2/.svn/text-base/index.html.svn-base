@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Select 2</title>
+    <!-- 必须：插件样式 -->
+    <link rel="stylesheet" href="__ROOT__/public/admin/select2/static/lib/css/select2.css">
+</head>
+<body>
+    <!-- 外层：用于规定整体宽度 -->
+    <div style="width:1000px;">
+        <!-- 标签：可选 -->
+        <label for="test">
+            点击选择相关选项：
+            <!-- 选择主题，multiple="multiple"控制是否多选 -->
+            <select id="test" class="test" multiple="multiple" style="width: 100%;">
+                <option value="a">a</option>
+                <option value="b">b</option>
+                <option value="c">c</option>
+                <option value="d">d</option>
+            </select>
+        </label>
+    </div>
+    <!-- 必须：jquery库 -->
+    <script src="__ROOT__/public/admin/select2/static/lib/js/jquery-2.1.0.js"></script>
+    <!-- 必须：插件主体程序 -->
+    <script src="__ROOT__/public/admin/select2/static/lib/js/select2.full.js"></script>
+    <script>
+        //调用select2方法
+        $('.test').select2({
+            //提示语配置
+            placeholder: "请选择...",
+            allowClear: true
+        });
+    </script>
+</body>
+</html>

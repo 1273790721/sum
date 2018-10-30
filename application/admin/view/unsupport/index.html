@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style>
+    body {
+        padding-top: 100px;
+    }
+    
+    .unsupport-bg {
+        position: fixed;
+        z-index: -1;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .unsupport-container {
+        width: 551px;
+        margin: 0 auto;
+    }
+    
+    .browser-box {
+        width: 232px;
+        margin: 43px auto;
+    }
+    
+    .browser-item {
+        display: block;
+        float: left;
+        margin-right: 38px;
+    }
+    
+    .browser-item img {
+        border: none;
+    }
+    
+    .clearfix {
+        zoom: 1;
+    }
+    
+    .clearfix:after {
+        content: '';
+        display: block;
+        line-height: 0;
+        height: 0;
+        font-size: 0;
+        clear: both;
+        visibility: hidden;
+    }
+    
+    .browser-item-last {
+        margin-right: 0;
+    }
+    </style>
+    <!--[if lt IE 8]><script>alert(1)</script><![endif]-->
+</head>
+
+<body>
+    <img src="__ROOT__/public/admin/images/unsupport.jpg" alt="" class="unsupport-bg">
+    <div class="unsupport-container">
+        <img src="__ROOT__/public/admin/images/unsupport_text.png" alt="">
+        <div class="browser-box clearfix">
+            <a class="browser-item" target="_blank" href="https://www.baidu.com/s?&wd=chrome"><img width="52" height="52" src="__ROOT__/public/admin/images/chrome.jpg" alt=""></a>
+            <a class="browser-item" target="_blank" href="http://se.360.cn/"><img width="52" height="52" src="__ROOT__/public/admin/images/se360.jpg" alt=""></a>
+            <a class="browser-item browser-item-last" target="_blank" href="http://browser.qq.com/"><img width="52" height="52" src="__ROOT__/public/admin/images/qq.png" alt=""></a>
+        </div>
+    </div>
+</body>
+
+</html>

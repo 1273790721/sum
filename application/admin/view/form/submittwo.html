@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body style="padding: 16px;">
+	<form class="layui-form">
+		<div class="layui-form-item">
+			<label class="layui-form-label">用户名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="username" class="layui-input" lay-verify="required">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">密码：</label>
+			<div class="layui-input-block">
+				<input type="text" name="password" class="layui-input" lay-verify="required">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="*">提交</button>
+			</div>
+		</div>
+	</form>
+</body>
+<blockquote class="layui-elem-quote">多表单提交前台使用说明：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		2.点击提交后，读取session里面的数据，合并session的数据和该页面的数据，通过ajax发送到后台。例如：
+	</p>
+	<pre class="layui-code">
+form.on('submit(*)',function(data){
+	var prev = {
+		'name':localStorage.getItem('name'),
+		'sex':localStorage.getItem('sex'),
+		'age':localStorage.getItem('age'),
+		'mark':localStorage.getItem('mark'),
+	};
+	var data = $.extend({},prev,data.field);
+	$.ajax({
+		url:"{:url('form/submittwo')}",
+		type:'post',
+		data:data,
+		dataType:'json',
+		success:function(json){
+			layer.msg(json.msg);
+			if(json.code == 1){
+				localStorage.clear();
+				setTimeout(function(){
+					window.location.href = "{:url('form/submitone')}";
+				},1000)
+			}
+		}
+	})
+	return false;
+})
+	</pre>
+</blockquote>
+<blockquote class="layui-elem-quote">多表单提交后台使用说明：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.后台接受数据，分别写入各个表单对应的数据表，并返回结果，跳转到初始页面。
+	</p>
+</blockquote>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript">
+	layui.use('code',function(){
+		layui.code({
+			encode:true,
+			elem:'span',
+		})
+	})
+	layui.use('form', function(){
+		var form = layui.form();
+		form.on('submit(*)',function(data){
+			var prev = {
+				'name':localStorage.getItem('name'),
+				'sex':localStorage.getItem('sex'),
+				'age':localStorage.getItem('age'),
+				'mark':localStorage.getItem('mark'),
+			};
+			var data = $.extend({},prev,data.field);
+			$.ajax({
+				url:"{:url('form/submittwo')}",
+				type:'post',
+				data:data,
+				dataType:'json',
+				success:function(json){
+					layer.msg(json.msg);
+					if(json.code == 1){
+						localStorage.clear();
+						setTimeout(function(){
+							window.location.href = "{:url('form/submitone')}";
+						},1000)
+					}
+				}
+			})
+			return false;
+		})
+	});
+</script>
+</html>

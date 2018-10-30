@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body style="padding: 16px;">
+	<form class="layui-form">
+		<input type="hidden" name="id" value="{$user['id']}">
+		<div class="layui-form-item">
+			<label class="layui-form-label">姓名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="name" class="layui-input" lay-verify="required" value="{$user['name']}">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">性别：</label>
+			<div class="layui-input-block">
+				<input type="radio" name="sex" value="1" title="男" {eq name="user['sex']" value="1"}checked{/eq}>
+				<input type="radio" name="sex" value="0" title="女" {eq name="user['sex']" value="0"}checked{/eq}>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">年龄：</label>
+			<div class="layui-input-block">
+				<input type="text" name="age" class="layui-input" lay-verify="required" value="{$user['age']}">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注：</label>
+			<div class="layui-input-block">
+				<textarea name="mark" class="layui-textarea" lay-verify="required">{$user['mark']}</textarea>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="*">提交</button>
+				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		</div>
+	</form>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+	layui.use('form', function(){
+		var form = layui.form();
+		form.on('submit(*)',function(data){
+			$.ajax({
+				url:"{:url('table/upd')}",
+				type:'post',
+				data:data.field,
+				dataType:'json',
+				success:function(json){
+					layer.msg(json.msg);
+					if(json.code == 1){
+						setTimeout(function(){
+							parent.location.reload();
+	                        var index = parent.layer.getFrameIndex(window.name);
+	                        parent.layer.close(index);
+						},1000)
+					}
+				}
+			})
+			return false;
+		})
+	});
+</script>
+</html>

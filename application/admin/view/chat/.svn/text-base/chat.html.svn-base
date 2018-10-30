@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" ng-app="demo">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>在线聊天</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="__ROOT__/public/chat1/css/RongIMWidget.min2.css"/>
+    <link rel="stylesheet" type="text/css" href="__ROOT__/public/chat1/css/chat.css"/>
+    <script src="__ROOT__/public/chat1/js/jquery-1.11.1.min.js"></script>
+</head>
+<body ng-controller="main" style="padding: 16px;">
+    <div style="min-height: 530px;margin-left: 30px;">
+    <input type="hidden" id="token" value="{$ry_token}">
+    <input type="hidden" id="targetType" value="1">
+    <input type="hidden" id="targetId" value="2">
+    <input type="hidden" id="targetIds" value="肖雪">
+    <button class="layui-btn" ng-click="setconversation()" id="contact" style="margin-left: 5px;margin-bottom:20px;" >开始会话</button>
+    <rong-widget></rong-widget>
+    </div>
+    <blockquote class="layui-elem-quote">使用方法：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>
+            <a href="http://www.rongcloud.cn/docs/web.html">融云web sdk开发文档</a>
+            说明：该模块引用的融云的sdk，开发前需要在融云前端注册账号：
+        </p>
+        <p><img src="../../public/chat1/images/ex1.png" alt="" /></p>
+        <p>
+            1.生成appkey后然后保存，使用融云通讯发消息的原则就是，每个用户（包括自己）都必须要有一个唯一的token值，这个值可以在生成用户时（比如注册，后台新增用户等等）时生成；生成的token随用户保存在用户表里面；每次链接融云服务器时，需使用到该token;以下是生成token的方法：
+        </p>
+        <pre class="layui-code">use RongYun\ServerAPI;  //在文件头引入融云的接口
+        public function register(){
+            $appKey = 'z3v5yqkbzc2l0';     //创建应用时生成的
+            $appSecret = 'GrEswj0weP4w';    //创建应用时生成的
+            ...      //这里为你查询你提交的用户名和用户的id，用户头像
+            $ress = new ServerAPI($appKey, $appSecret);   
+            $ress=$ress->getToken($userinfo['id'], $userinfo['true_name'], $img);   //通过该三个参数生成用户token
+            $ress = json_decode($ress,true);
+            $data['ry_token'] = $ress['token'];    //生成的token存入数组
+            ...   //这里就该存入数据库了
+        }
+        </pre>
+        <p>
+            2.有了token后，比如我要联系我的好友，首先就在查询我的token传入页面，以便链接融云服务器；链接服务器要打开会话需要三个参数--好友的用户id，好友的用户名和头像：
+            需要调用一下三个js文件：
+             <script src="__ROOT__/public/chat1/js/angular.js"></script>
+             <script src="__ROOT__/public/chat1/js/RongIMWidget.js"></script>   
+             <script src="__ROOT__/public/chat1/js/index.js"></script>
+        </p>
+        <pre class="layui-code">
+            //查询token传入页面的方法就不写了...
+            var token = $('#token').val();   //此处为获取token值
+              WebIMWidget.init({          //初始化 sdk
+              appkey: "z3v5yqkbzcc80",
+              token: token,
+              style:{
+              width:600,
+              height:440
+              },
+              displayConversationList:true,
+              conversationListPosition:WebIMWidget.EnumConversationListPosition.right,
+              hiddenConversations:[{type:WebIMWidget.EnumConversationType.SYSTEM,id:'system'}],
+              onSuccess:function(id){            //链接服务器
+                $scope.user = id;
+                console.log('连接成功：' + id);
+       //    前端代码为： 
+         button class="btn" ng-click="setconversation()">发起私聊会话 
+         //此处的"setconversation()"，该方法是将用户的
+          <input type="hidden" id="targetType" value="1">  //用户聊天类型--1 代表是私聊,更多会话类型查看http://www.rongcloud.cn/docs/api/js/global.html#ConversationType
+          <input type="hidden" id="targetId" value="2">    //好友的id
+          <input type="hidden" id="targetIds" value="肖雪">   //好友的用户名
+           调用index.js-- 该js基于angularjs写的，所以需要调用一个angularjs的包
+           //以下为打开会话时，获取好友信息--用户名，头像等
+          WebIMWidget.setUserInfoProvider(function(targetId,obj){
+            $http({ 
+              url:"../chat/rongyun"        //该方法为遍历所有好友，以获取列表中最近联系人的好友信息
+            }).success(function(rep){
+              var user;
+              rep.forEach(function(item){
+                if(item.id==targetId){            
+                  user=item;
+                }
+              })
+
+              if(user){
+                obj.onSuccess({id:user.id,name:user.name,portraitUri:user.portraitUri});
+              }else{
+                obj.onSuccess({id:targetId,name:"用户："+targetId});
+              }
+            })
+    
+    });
+        }  
+        //以下为后台获取好友方法
+        public function rongyun(){
+         //这里是获取好友的信息
+        $uid = 2;
+            $data2['id'] =  $uid;
+            $data2['name'] = '肖雪';
+            $data2['url'] = '/public/upload/user/icon/2017-04-07/20170411072552.jpeg';
+            $data2['portraitUri'] = 'http://localhost/zsrc'.$data2['url'];
+        
+        $data[]=$data2;
+        //这里应该获取当前登录的用户的信息,由于未做用户管理，暂无法获取对应信息，先写死
+        $id = 1;
+        $user = db('user','admin_db')->field('username,true_name,icon')->where('id',1)->find();
+            if(is_array($user)){
+            $data1['id'] =  $id;
+            $data1['name'] = $user['true_name'];
+            $data1['url'] = $user['icon'];
+            $data1['portraitUri'] = 'http://localhost/zsrc'.$data1['url'];
+            }
+        
+        $data[]=$data1;
+        echo json_encode($data);
+        
+     }
+        </pre>
+        <p>
+            3.如果需要开启历史消息，可在融云控制台开启，若是需要做群组消息，方法类似；先查询出来所属的所有群组，然后遍历：
+            <pre class="layui-code">
+        WebIMWidget.setGroupInfoProvider(function(targetId,obj){
+        $http({
+          url:"../Personalspace/groupinfo"
+        }).success(function(rep){           
+          var group;
+          rep.forEach(function(item){
+            if(item.id==targetId){
+                group=item;
+            }
+          })
+          if(group){
+            obj.onSuccess({id:group.id,name:group.name,portraitUri:group.portraitUri});
+          }else{
+            obj.onSuccess({id:targetId,name:"陌："+targetId});
+          }
+        })
+    });
+            </pre>
+        </p>
+        <p>ps 前端页面必须要引用 
+        <pre class="layui-code">
+            rong-widget
+         </pre>
+        方可打开聊天界面</p>
+    </blockquote>
+</body> 
+    <script src="__ROOT__/public/chat1/js/angular.js"></script>
+    <script src="__ROOT__/public/chat1/js/RongIMWidget.js"></script>
+    <script src="__ROOT__/public/chat1/js/index.js"></script>
+
+<script type="text/javascript">
+    var root = "__ROOT__";
+</script>
+</html>

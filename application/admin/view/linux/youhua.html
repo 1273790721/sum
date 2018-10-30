@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>服务器配置优化</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+</head>
+<body>
+	<div class="admin-main">
+			<blockquote class="layui-elem-quote">
+				<p style="color: red;">Nginx服务器性能优化配置</p>
+				原理：
+				<a href="#" > 在大多数情况下，一个常规安装的nginx服务器对你的网站来已经是能很好地工作的了。然而，如果你真的想挤压出nginx的性能，你必须更深入一些。在这时我们将解释Nginx的那些设置可以微调，以优化在处理大量客户端请求时的性能。需要注意一点的是这不是一个全面的微调指南，而是一个简单的可以通过微调来提高性能设置的概述。请根据实际情况使用。</a>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>nginx高并发优化</legend>
+				<div class="layui-field-box">
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>当遇到高并发时，可能会遇到502错误，错误原因有多种，可以优先考虑按照以下两个步骤去解决：</legend>
+						<div class="layui-field-box">
+							<p style="color: red;">1、查看当前的PHP FastCGI进程数是否够用：</p>
+							<p>ssh登陆后通过命令查看服务器上一共开了多少的 php-cgi 进程</p>
+							<p><cite style="color: #1AA094;">ps -fe |grep "php"|grep -v "grep"|wc -l</cite></p>
+							<p>查看已经有多少个php-cgi进程用来处理tcp请求</p>
+							<p><cite style="color: #1AA094;">netstat -anop |grep "php"|grep -v "grep"|wc -l</cite></p>
+							<p>如果实际使用的“FastCGI进程数”接近预设的“FastCGI进程数”，那么，说明“FastCGI进程数”不够用，需要增大。</p>
+							<p style="color: blue;">一般设置进程的配置文件为nginx.conf；</p>
+							<p>例如原来的worker_processes 8;（nginx 进程数，建议按照cpu 内核数目来指定，一般为它的倍数。）</p>
+							<p>worker_cpu_affinity 00000001 00000010 00000100 00001000 00010000 00100000 01000000 10000000;</p>
+							<p>为每个进程分配cpu，上例中将8 个进程分配到8 个cpu，当然可以写多个，或者将一
+							个进程分配到多个cpu。</p>
+							<p>nginx和apache一样，有前端缓冲限制，可以调整缓冲参数</p>
+							<p><cite style="color: #1AA094;">fastcgi_buffer_size 32k;</cite></p>
+							<p><cite style="color: #1AA094;">fastcgi_buffers 8 32k;</cite></p>
+							<p>如果你用了Proxying，调整Proxy Buffer</p>
+							<p><cite style="color: #1AA094;">proxy_buffer_size   16k;</cite></p>
+							<p><cite style="color: #1AA094;">proxy_buffers    4 16k;</cite></p>
+						</div>
+						<div class="layui-field-box">
+							<p style="color: red;">2、部分PHP程序的执行时间超过了Nginx的等待时间，可以适当增加nginx.conf配置文件中FastCGI的timeout时间，例如</p>
+							<p>FastCGI执行时间过长</p>
+							<p>根据实际情况调高以下参数值</p>
+							<p><cite style="color: #1AA094;">fastcgi_connect_timeout 300;</cite></p>
+							<p><cite style="color: #1AA094;">fastcgi_send_timeout 300;</cite></p>
+							<p><cite style="color: #1AA094;">fastcgi_read_timeout 300;</cite></p>
+							<p>php.ini中memory_limit设低了会出错，修改了php.ini的memory_limit为64M，重启nginx，发现好了，原来是PHP的内存不足了。</p>
+							<p style="color: blue;">max-children和max-requests</p>
+							<p>打开 php-fpm.conf调大以下两个参数(根据服务器实际情况，过大也不行）</p>
+  							<p>增加children的数量，并且将 max_requests 设置未 0 或者一个比较大的值：</p>
+  							<p>然后重启php-fpm。</p>
+							<p style="color: blue;">增加缓冲区容量大小</p>
+							<p>将nginx的error log打开，发现“pstream sent too big header while reading response header from upstream”这样的错误提示。查阅了一下资料，大意是nginx缓冲区有一个bug造成的,我们网站的页面消耗占用缓冲区可能过大。参考老外写的修 改办法增加了缓冲区容量大小设置，502问题彻底解决。后来系统管理员又对参数做了调整只保留了2个设置参数：client head buffer，fastcgi buffer size。
+							</p>
+							<p style="color: blue;">request_terminate_timeout</p>
+							<p>　如果主要是在一些post或者数据库操作的时候出现502这种情况，而不是在静态页面操作中常见，那么可以查看一下php-fpm.conf设置中的一项：
+							</p>
+							<p>request_terminate_timeout</p>
+							<p>这个值是max_execution_time，就是fast-cgi的执行脚本时间。</p>
+							<p>0s为关闭，就是无限执行下去。（当时装的时候没仔细看就改了一个数字）问题解决了，执行很长时间也不会出错了。优化fastcgi中，还可以改改这个值5s 看看效果。</p>
+							<p style="color: red;">php-cgi进程数不够用、php执行时间长、或者是php-cgi进程死掉，都会出现502错误。</p>
+						</div>
+						<div class="layui-field-box">
+							<p style="color: red;">3、php-fpm进程管理与优化</p>
+							<p>pm = dynamic</p>
+							<p>pm.max_children = 8192</p>
+							<p>pm.start_servers = 128</p>
+							<p>pm.min_spare_servers = 128</p>
+							<p>pm.max_spare_servers = 1024</p>
+							<p>pm.max_requests = 500000</p>
+							<p style="color: blue;">上面4个参数的意思分别为：</p>
+							<p>pm.max_children：静态方式下开启的php-fpm进程数量</p>
+  							<p>pm.start_servers：动态方式下的起始php-fpm进程数量</p>
+  							<p>pm.min_spare_servers：动态方式下的最小php-fpm进程数</p>
+							<p>pm.max_spare_servers：动态方式下的最大php-fpm进程数量</p>
+							<p>区别：</p>
+							<p style="color: blue;">如果dm设置为 static，那么其实只有pm.max_children这个参数生效。系统会开启设置数量的php-fpm进程。</p>
+							<p>如果dm设置为 dynamic，那么pm.max_children参数失效，后面3个参数生效。</p>
+							<p>系统会在php-fpm运行开始 的时候启动pm.start_servers个php-fpm进程，</p>
+							<p>然后根据系统的需求动态在pm.min_spare_servers和pm.max_spare_servers之间调整php-fpm进程数</p>
+						</div>
+						<div class="layui-field-box">
+							<p style="color: red;">4、thinkphp内部配置文件/conf/debug.php</p>
+							<p><img src="../../public/beginneradmin/images/youhua1.png"></p>
+							<p>此项如果设为false每次都会重新编译生成缓存，占用内存</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>若安装的是lnmp包</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;">第一种原因：</cite></p>
+							<p>目前lnmp一键安装包比较多的问题就是502 Bad Gateway，大部分情况下原因是在安装php前，脚本中某些lib包可能没有安装上，造成php没有编译安装成功。解决办法：可以尝试根据lnmp一键安装包中的脚本手动安装一下，看看是什么错误导致的。</p>
+							<p><cite style="color: #1AA094;">第二种原因:</cite></p>
+							<p>在php.ini里，eaccelerator配置项一定要放在Zend Optimizer配置之前，否则也可能引起502 Bad Gateway</p>
+							<p><cite style="color: #1AA094;">第三种原因：</cite></p>
+							<p>在安装好使用过程中出现502问题，一般是因为默认php-cgi进程是5个，可能因为phpcgi进程不够用而造成502，需要修改/usr/local/php/etc/php-fpm.conf 将其中的max_children值适当增加。</p>
+							<p><cite style="color: #1AA094;">第四种原因：</cite></p>
+							<p>php执行超时，修改/usr/local/php/etc/php.ini 将max_execution_time 改为300</p>
+							<p><cite style="color: #1AA094;">第五种原因：</cite></p>
+							<p>磁盘空间不足，如mysql日志占用大量空间</p>
+							<p><cite style="color: #1AA094;">第六种原因：</cite></p>
+							<p>查看php-cgi进程是否在运行</p>
+							
+						</div>
+						
+					</fieldset>
+						<fieldset class="layui-elem-field layui-field-title">
+						<legend>以上只是常碰到的解决方式，建议出问题还是先看错误日志--nginx_error.log</legend>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;">报错信息：2339 connect() to unix:/tmp/php-cgi.sock failed (2: No such file or directory) while connecting to upstream, client: xxxx  </cite></p>
+							<p>出现以上问题请检查nginx和php-fpm的配置：</p>
+							<p><cite style="color: #1AA094;">1.nginx配置文件nginx.conf，找到其中配置php-fpm路径的地方</cite></p>
+							<p><cite style="color: #1AA094;">location ~\.php$ { </cite> </p>	
+							<p> <cite style="color: #1AA094;"> root /home/xxxx;  </cite></p>		
+							<p> <cite style="color: #1AA094;">fastcgi_pass unix:/tmp/php-cgi.sock; </cite> </p>
+							<p><cite style="color: #1AA094;"> fastcgi_index index.php; </cite> </p>	
+							<p><cite style="color: #1AA094;"> include fastcgi.conf;  </cite></p>
+							<p><cite style="color: #1AA094;">}</cite></p>
+							<p>其中fastcgi_pass为配置nginx与php-fpm的交互路径，一般有两种方式</p>
+							<p>sock方式：fastcgi_pass    unix:/tmp/php-cgi.sock;</p>
+							<p>http方式：fastcgi_pass    127.0.0.1;9000;</p>
+							<p>任选其中一种即可，但必须和php-fpm的配置一致。</p>
+							<p><cite style="color: #1AA094;">2.php-fpm配置文件php-fpm.conf，找到其中配置启动方式的地方</cite></p>
+							<p><workers>  </p>
+							<p> <section>  </p>
+							<p><value name="listen_address">127.0.0.1:9000</value>   ...//省略其他配置  </p>
+							<p>    </section>  </p>
+							<p></workers></p>
+							<p style="color:blue;">其中配置为127.0.0.1:9000与nginx中的配置unix:/home/xxx/php/var/php-cgi.sock不符，所以导致报错。</p>
+							<p>修改php-fpm配置为：</p>
+							<p>/home/xxx/php/var/php-cgi.sock</p>
+							<p>或者修改nginx配置为：</p>
+							<p>fastcgi_pass    127.0.0.1;9000;</p>
+							<p>都可以解决以上问题。</p>
+
+							
+							
+						</div>
+						<div class="layui-field-box">
+							<p><cite style="color: #1AA094;">Error -27796: Failed to connect to server "ip地址": [10060] Connection timed out的解决办法： </cite></p>
+							<p>解决办法一是：</p>
+							<p><cite style="color: #1AA094;">（1）1. 修改run time setting中的请求超时时间Preferences 中点击Options 其中有三项的参数可以一次都修改了，HTTP-request connect timeout，HTTP-request receieve timeout，Step download timeout，分别建议修改为1000、1000、10000；run time setting设置完了后记住还需要在control组件的option的run time setting中设置相应的参数；</cite></p>
+							<p><cite style="color: #1AA094;">2. Browser Emulation 中的Download non-HTML resources 选项去掉，点击OK即可 </cite> </p>	
+							<p> （2）办法（一）不能解决的情况下，解决办法如下：</p>		
+							<p> <cite style="color: #1AA094;">　　设置runt time setting中的internet protocol-preferences中的advaced区域有一个winlnet replay instead of sockets选项，选项后再回放就成功了。切记此法只对windows系统起作用 </cite> </p>
+							
+						</div>
+						
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>最后给一个完整的内核的配置</legend>
+						<div class="layui-field-box">
+							<p>vi /etc/sysctl.conf  CentOS5.5中可以将所有内容清空直接替换为如下内容:</p>
+							<p><img src="__ROOT__/public/beginneradmin/images/youhua11.png"></p>
+							<p>使配置立即生效可使用如下命令：:</p>
+							<p><cite style="color: #1AA094;">/sbin/sysctl -p</cite></p>
+							
+						</div>
+						
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>下面是一个简单的nginx 配置文件:</legend>
+						<div class="layui-field-box">
+							<p><img src="__ROOT__/public/beginneradmin/images/youhua12.png"></p>
+							<p><img src="__ROOT__/public/beginneradmin/images/youhua13.png"></p>
+							<p><img src="__ROOT__/public/beginneradmin/images/youhua14.png">:</p>
+							<p><img src="__ROOT__/public/beginneradmin/images/youhua15.png"></p>
+							
+						</div>
+						
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>最后是常用的命令行使用规范</legend>
+						<div class="layui-field-box">
+							<p>1、查找文件：</p>
+							<p><cite style="color: #1AA094;">find -name nginx.conf</cite></p>
+							<p>2、MySQL状态管理:</p>
+							<p><cite style="color: #1AA094;">/etc/init.d/mysql {start|stop|restart|reload|force-reload|status}</cite></p>
+							<p>3、Nginx状态管理</p>
+							<p><cite style="color: #1AA094;">/etc/init.d/nginx {start|stop|reload|restart}</cite></p>
+							<p>4、PHP-FPM状态管理：</p>
+							<p><cite style="color: #1AA094;">/etc/init.d/php-fpm {start|stop|quit|restart|reload|logrotate}</cite></p>
+							<p>5、Memcached状态管理:</p>
+							<p><cite style="color: #1AA094;">/etc/init.d/memcached {start|stop|restart}</cite></p>
+							<p>6、清空日志:</p>
+							<p><cite style="color: #1AA094;">echo "" >/home/wwwlogs/nginx_error.log</cite></p>
+						</div>
+						
+					</fieldset>
+					
+		</div>
+</body>
+<script type="text/javascript">
+	var root = "__ROOT__";
+</script>
+</html>

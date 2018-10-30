@@ -1,0 +1,78 @@
+/* here you can put your own css to customize and override the theme */
+.home-logo
+{
+	 margin: 20px 0px 0px 10px;
+        // padding-top: 20px;
+	 font-size: 20px;
+	 color: #f1f1f1; 
+	 font-weight:bold;
+}
+.home-logo:hover {
+     color: #f1f1f1; 
+     text-decoration:none;
+
+} 
+/***
+Rounded Portlets
+***/
+/*
+.portlet {
+	border-radius: 4px !important;
+}
+
+.portlet .portlet-title {
+	border-radius: 4px 4px 0px 0px !important;
+}
+
+.portlet .portlet-body,
+.portlet .portlet-body .form-actions  {
+	border-radius: 0px 0px 4px 4px !important;
+}
+*/
+.tiles {
+  margin-right: -10px;
+}
+.tiles:before, .tiles:after {
+  display: table;
+  content: " ";
+}
+.tiles:after {
+  clear: both;
+}
+.tiles .tile {
+  display: block;
+  letter-spacing: 0.02em;
+  float: left;
+  height: 84px;
+  width: 84px !important;
+  cursor: pointer;
+  text-decoration: none;
+  color: #bbbbbb;
+  position: relative;
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 20px;
+  overflow: hidden;
+  border: none;
+  margin: 0 10px 10px 0;
+} 
+.tiles .tile:hover{
+	background:#4E5966;
+} 
+.tiles .tile .tile-body > i {
+    color: #bbbbbb;
+    margin-top: -10px;
+  display: block;
+  font-size: 29px;
+  line-height: 75px;
+  text-align: center;
+}
+.tiles .tile .tile-object {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 28px; 
+  background-color: transparent;
+} 

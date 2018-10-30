@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>layer</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style>
+    body {
+        font-size: 14px;
+        color: #333;
+        padding: 10px;
+    }
+    
+    #during,
+    #text {
+        text-indent: 10px;
+    }
+    
+    label {
+        margin: 0 6px;
+    }
+    
+    .info {
+        font-size: 12px;
+        color: #999;
+    }
+    
+    .box {
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <button id="btn">点击显示</button>
+        <label for="">标题</label>
+        <input type="text" id="text" value="示例弹窗">
+    </div>
+    <blockquote class="layui-elem-quote">layer.confirm(obj) Object</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>layer.confirm同样接受一个配置对象，如下示例：</p>
+        <pre class="layui-code">
+            layer.confirm({
+                title: {
+                    text: '示例弹框',
+                    close: {
+                        css: {
+                            backgroundColor: 'red'
+                        }
+                    },
+                    css: {
+                        color: #ccc
+                    }
+                },
+                css: {
+                    width: '600px',
+                    height: '300px',
+                    borderRadius: '0'
+                },
+                btns: [{
+                    text: '确认',
+                    css: {
+                        width: '120px',
+                        backgroundColor: '#f40'
+                    },
+                    click: function(hide){
+                        setTimeout(function(){
+                            alert(1);
+                            hide()
+                        },2000)
+                    },
+                    async: true
+                },{
+                    text: '取消',
+                    css: {
+                        width: '120px',
+                        backgroundColor: '#ccc'
+                    }
+                },{
+                    text: '其他',
+                    css: {
+                        width: '120px',
+                        backgroundColor: 'yellow'
+                    },
+                    click: function(){
+                        alert('其他');
+                    }
+                }],
+                content: ''
+            });
+
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">1. title: object(可选)</blockquote>
+    <blockquote class="layui-elem-quote  layui-quote-nm">
+        <p>title用于设置弹出框的标题。</p>
+        <p>1.1 text:string (可选)用于设置弹出框的标题。</p>
+        <pre class="layui-code">
+            text: 'hello world'
+        </pre>
+        <p>1.2 css: object（可选）Css用于设置标题的样式其中可以设置的有lineHeight,fontSize,textAlign,backgroundColor,color,borderBottom,borderTop,borderLeft,borderRight。</p>
+        <pre class="layui-code">
+            css: {
+
+            }
+        </pre>
+        <p>1.2 close: object（可选）Close为弹窗的关闭按钮，其类型可以是布尔值，或者是一个对象 对象里可传入一个css对象用来定义关闭按钮的样式其中可以设置的有width,height(请注意该宽高是用以设置可点击范围的宽高 并非关闭按钮的宽高)，backgroundColor,backgroundSize(此为按钮大小)。
+        </p>
+        <pre class="layui-code">
+            close: {
+                css: {
+                    width: '36px',
+                    height: '36px',
+                    // 此为关闭按钮的图片
+                    backgroundImage: 'url(/public/images/...)'
+                }
+            }
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">2. css: object(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>此属性用于指定弹框外壳的样式，需要用户自定义宽高。 可设置的属性有width,height,lineHeight,backgroundColor,top,color,borderRadius,transition(过度动画),boxShadow,overflow。
+        </p>
+        <pre class="layui-code">
+            css: {
+                top: '20%',
+                fontSize: '14px'
+                ...
+            }
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">3. btns: Array(可选)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>此属性用于添加弹出层的按钮，接受一个数组，其中数组的每一项是一个对象。</p>
+        <pre class="layui-code">
+            btns: [{
+                text: '确认',                  //  按钮上的文字
+                css: {                        //  按钮的css样式
+                    width: '120px'
+                },
+                click: function(hide) {       //  用于指定按钮点击后执行的操作，取消按钮可以不用传入函数。
+                    setTimeout(function() {
+                        alert(1);
+                        hide()                //  异步操作中关闭弹窗的方法
+                    }, 2000)
+                },
+                async: true                   //  如果存在异步操作，需要自己确定弹窗的关闭时间可设置
+            }, {
+                text: '取消',                 //  该按钮为取消需要指定click事件
+                css: {
+                    width: '120px'
+                }
+            }, {
+                text: '其他',
+                css: {
+                    width: '120px'
+                },
+                click: function() {
+                    alert('其他');
+                }
+            }]
+        </pre>
+    </blockquote>
+    <blockquote class="layui-elem-quote">3. content: String/dom(需要)</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>用以传入用户的自定义内容。</p>
+        <pre class="layui-code">
+            content: document.getElementById('content')/'我是一个小示例'
+        </pre>
+    </blockquote>
+    <script src="__ROOT__/public/admin/layer/layer.js"></script>
+    <script>
+    function $(id) {
+        return document.getElementById(id)
+    };
+    var btn = $('btn');
+    btn.addEventListener('click', function() {
+        var text = $('text').value;
+        layer.confirm({
+            title: {
+                text: text,
+                css: {
+                    color: '#333'
+                },
+                close: {
+                    css: {
+                        backgroundImage: 'url(/zsrc/public/upload/user/icon/2017-04-07/20170407072552.jpeg)'
+                    }
+                }
+            },
+            css: {
+                width: '600px',
+                height: '300px',
+                borderRadius: '0'
+            },
+            btns: [{
+                text: '确认',
+                css: {
+                    width: '120px'
+                },
+                click: function(hide) {
+                    setTimeout(function() {
+                        alert(1);
+                        hide()
+                    }, 2000)
+                },
+                async: true
+            }, {
+                text: '取消',
+                css: {
+                    width: '120px'
+                }
+            }, {
+                text: '其他',
+                css: {
+                    width: '120px'
+                },
+                click: function() {
+                    alert('其他');
+                }
+            }],
+            content: '我是一个小示例'
+        });
+    });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body>
+	<blockquote class="layui-elem-quote">安装discuz：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+    	<p>
+    		1.下载discuz安装包，把压缩包里面的upload文件夹复制到网站根目录下面，改名为discuz。
+    	</p>
+    	<p>
+    		2.访问discuz/install，进入到安装界面，如下图：
+    	</p>
+    	<img src="__ROOT__/public/admin/images/20170417104852.png" alt="">
+    	<p>
+    		3.满足上述条件点击下一步，如下图：
+    	</p>
+    	<img src="__ROOT__/public/admin/images/20170417104943.png" alt="">
+    	<p>
+    		4.选择全新安装，点击下一步，如下图：
+    	</p>
+    	<img src="__ROOT__/public/admin/images/20170417105208.png" alt="">
+    	<p>
+    		5.填写数据库信息以及管理员信息，点击下一步，如下图：
+    	</p>
+    	<img src="__ROOT__/public/admin/images/20170417105632.png" alt="">
+    	<p>
+    		6.安装成功后，删除discuz下面的install文件。
+    	</p>
+    	<p>
+    		7.访问前台地址为discuz/forum.php，后台地址为discuz/admin.php，帐号密码为安装时填写的管理员帐号密码。
+    	</p>
+    </blockquote>
+    <blockquote class="layui-elem-quote">discuz示例地址：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+    	<p>
+    		<a href="__ROOT__/discuz/forum.php" target="_blank">前台页面</a>
+    	</p>
+    	<p>
+    		<a href="__ROOT__/discuz/admin.php" target="_blank">后台页面</a>
+    	</p>
+    	<p>
+    		管理员帐号：admin；密码：123456。
+    	</p>
+    </blockquote>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+	layui.use('code',function(){
+        layui.code({
+            encode:true,
+            elem:'zi',
+        });
+    })
+</script>
+</html>

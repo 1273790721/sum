@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/qqface/css/qq.css">
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__ROOT__/public/qqface/js/jquery.min.js"></script>
+	<script type="text/javascript" src="__ROOT__/public/qqface/js/jquery.qqFace.js"></script>
+	<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+	<style>
+		#saytext{
+			resize: none;
+			height: 200px;
+		}
+	</style>
+</head>
+<body>
+	<div class="comment"> 
+	    <div class="com_form"> 
+	        <textarea class="input" id="saytext" name="saytext" class="layui-textarea"></textarea> 
+	        <p>
+	        	<span class="emotion">表情</span>
+	        	<input type="button" class="sub_btn layui-btn" value="提交">
+	        </p> 
+	    </div> 
+	</div>
+</body>
+<script type="text/javascript">
+	layui.use('layer',function(){
+		var layer = layui.layer;
+	})
+	$(function(){
+	    $('.emotion').qqFace({
+	        assign:'saytext',
+	        path:'__ROOT__/public/qqface/arclist/',
+	    }); 
+	    
+	});
+	
+function replace(str){ 
+    str = str.replace(/\</g,'<；'); 
+    str = str.replace(/\>/g,'>；'); 
+    str = str.replace(/\n/g,'<；br/>；'); 
+    var url = '__ROOT__/public/qqface/arclist/';
+    str = str.replace(/\[em_([0-9]*)\]/g,'<img src="'+url+'$1.gif" border="0" />'); 
+    return str; 
+}
+
+	$('.sub_btn').on('click',function(){
+		var content = $('#saytext').val();
+		if ($.trim(content) == '') {
+	        return false;
+	    }
+		content = replace(content);
+	    var pid = "{$Think.get.pid}";
+		$.ajax({
+            url:"{:url('friend/send')}",
+            type:'post',
+            data:{'pid':pid,'content':content},
+            dataType:'json',
+            success:function(json){
+                layer.msg(json.msg);
+                if(json.code == 1){
+                    setTimeout(function(){
+                        parent.location.reload();
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    },1000);
+                }
+            }
+        })
+	})
+</script>
+</html>

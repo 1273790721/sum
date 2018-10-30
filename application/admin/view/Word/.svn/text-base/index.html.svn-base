@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style>
+        .sign{
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <blockquote class="layui-elem-quote">word上传：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <div class="sign">
+            1.将word模版文件通过word编辑器文件另存为html格式上传服务器
+        </div>
+        <div class="sign">
+            2.相关代码可去控制器word.php文件中查看
+        </div>
+    </blockquote>
+    <blockquote class="layui-elem-quote">word模版文字替换方法：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <pre class="layui-code">
+<img src="__ROOT__/public/admin/images/word2.png">
+        </pre>
+    </blockquote>
+    <script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+    <script type="text/javascript">
+        var root = "__ROOT__";
+        layui.use('code',function(){
+            layui.code({
+                encode:true,
+                elem:'zi',
+            });
+        })
+    </script>
+</body>
+</html>

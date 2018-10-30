@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>数据库读写分离</title>
+<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+</head>
+<body>
+	<div class="admin-main">
+			<blockquote class="layui-elem-quote">
+				<p style="color: red;">上一个菜单讲了数据库主从复制，接下来就是在主从复制的基础上实现数据库读写分离，减缓服务器压力</p>
+				<p style="color: red;">Amoeba是什么</p>
+				<p>Amoeba(变形虫)项目,该开源框架于2008年开始发布一款Amoeba for Mysql软件。详细资料可参阅Amoeba官方文档(需翻墙)。</p>
+				<p>Amoeba致力于MySQL的分布式数据库前端代理层，它主要在应用层访问MySQL的时候充当SQL路由功能，专注于分布式数据库代理层 （Database Proxy）开发。座落与 Client、DB Server(s)之间，对客户端透明。具有负载均衡、高可用性、SQL过滤、读写分离、可路由相关的到目标数据库、可并发请求多台数据库合并结果。 通过Amoeba你能够完成多数据源的高可用、负载均衡、数据切片的功能。
+				</p>
+				<p>Amoeba不能做什么
+					<a href="#" target="_blank">1.目前还不支持事务；</a>
+					<a href="#">2.暂时不支持存储过程，官方说近期会支持；</a>
+					<a href="#">3.不适合从Amoeba导数据的场景或者对大数据量查询的query并不合适，比如一次请求返回10w以上甚至更多数据的场合；</a>
+					<a href="#">4.暂时不支持分库分表，amoeba目前只做到分数据库实例，每个被切分的节点需要保持库表结构一致。
+					若实际项目中所需要的功能正式Amoeba的短板，建议使用Mysql Proxy作为中间件，或者在应用层通过程序控制数据源，手动实现数据库读写分离。</a>
+				</p>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>Amoeba数据库代理</legend>
+				<div class="layui-field-box">
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>Amoeba作为数据库代理，以中间件的形式存在，拓扑图如下所示：</legend>
+						<div class="layui-field-box">
+							<p><img src="../../public/beginneradmin/images/duxie1.png"></p>
+							<p> 目前Amoeba for Mysql最新版本为amoeba-mysql-3.0.5-RC-distribution.zip。</p>
+							<p> 安装过程很简单，只需要将zip压缩包解压至/usr/local/即可。若没有安装zip和unzip，可以通过centOS yum安装。</p>
+							<p><cite style="color: #1AA094;">[root@chenllcentos ~]# yum -y install zip unzip</cite></p>
+       						<p>接下来，解压Amoeba压缩包。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# unzip amoeba-mysql-3.0.5-RC-distribution.zip</cite></p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# cp -rf amoeba-mysql-3.0.5-RC /usr/local</cite></p>
+       						<p>启动Amoeba。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# /usr/local/amoeba-mysql-3.0.5-RC/bin/launcher</cite></p>
+       						<p>但是提示出现fatal exception：</p>
+       						<p><cite style="color: #1AA094;">The stack size specified is too small, Specify at least 228k</cite></p>
+       						<p><cite style="color: #1AA094;">Error: Could not create the Java Virtual Machine.</cite></p>
+       						<p><cite style="color: #1AA094;">Error: A fatal exception has occurred. Program will exit.</cite></p>
+       						<p>从错误文字上看，应该是由于stack size太小，导致JVM启动失败，要如何修改呢？</p>
+       						<p>其实Amoeba已经考虑到这个问题，并将JVM参数配置写在属性文件里。现在，让我们通过该属性文件修改JVM参数。</p>
+       						<p>修改jvm.properties文件JVM_OPTIONS参数。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# vi /usr/local/amoeba-mysql-3.0.5-RC/jvm.properties</cite></p>
+       						<p>将内容：</p>
+       						<p><cite style="color: #1AA094;">JVM_OPTIONS="-server -Xms256m -Xmx1024m -Xss196k -XX:PermSize=16m -XX:MaxPermSize=96m"</cite></p>
+       						<p>替换为：</p>
+       						<p><cite style="color: #1AA094;">JVM_OPTIONS="-server -Xms1024m -Xmx1024m -Xss256k -XX:PermSize=16m -XX:MaxPermSize=96m"</cite></p>
+       						<p>再次启动Amoeba。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# /usr/local/amoeba-mysql-3.0.5-RC/bin/launcher</cite></p>
+       						<p>若使用Amoeba完成读写分离，需要分别对dbServers.xml和amoeba.xml两个配置文件进行配置。与在应用层实现读写分离不同，使用Amoeba实现读写分离只需要修改配置文件，并不会产生硬编码耦合，有利于系统扩展和维护。</p>
+       						<p>首先是配置dbServers.xml，主要是配置真实Mysql数据库连接信息。</p>
+       						<p><cite style="color: #1AA094;"><?xml version="1.0" encoding="gbk"?></cite></p>
+       						<p><cite style="color: #1AA094;"><!DOCTYPE amoeba:dbServers SYSTEM “dbserver.dtd”> <amoeba:dbServers xmlns:amoeba=“http://amoeba.meidusa.com/”></cite></p>
+       						<p><img src="../../public/beginneradmin/images/duxie2.png"></p>
+       						<p><img src="../../public/beginneradmin/images/duxie3.png"></p>
+       						<p>1XX.XX.XX.181</p>
+       						<p>1XX.XX.XX.185</p>
+       						<p><img src="../../public/beginneradmin/images/duxie4.png"></p>
+       						<p></amoeba:dbServers></p>
+       						<p>可以看出，对dbServers.xml文件的配置，主要就是对dbServer节点的配置。其中，readPool节点需要特别注意，因为Amoeba实现读写分离就是根据它来实现。</p>
+       						<p>接下来是amoeba.xml，主要是配置代理数据库连接信息。</p>
+       						<p><img src="../../public/beginneradmin/images/duxie5.png"></p>
+       						<p><img src="../../public/beginneradmin/images/duxie6.png"></p>
+       						<p><img src="../../public/beginneradmin/images/duxie7.png"></p>
+       						<p>在amoeba.xml中，主要完成连接信息和SQL路由配置。在queryRouter节点中，通过配置writePool和readPool可以实现读写分离。</p>
+       						<p>配置完成后，重启Amoeba。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# /usr/local/amoeba-mysql-3.0.5-RC/bin/shutdown</cite></p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# /usr/local/amoeba-mysql-3.0.5-RC/bin/launcher</cite></p>
+       						<p>至此，Mysql主从复制和使用Amoeba实现数据库读写分离全部配置完成。</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>2、读写分离验证:</legend>
+						<div class="layui-field-box">
+							<p>接下来，进行简单测试，验证以上配置是否能够正确运行。></p>
+       						<p>登录master主数据库。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# mysql -uroot -pyourpassword -h1XX.XX.XX.181 -P8066</cite></p>
+       						<p>额外说明下，此处的yourpassword是连接Amoeba的密码，也就是在amoeba.xml配置文件中配置的密码，与Mysql密码不同，需要注意。</p>
+       						<p>登陆后，此时会提示以下信息。</p>
+       						<p style="color:red;">Server version: 5.1.45-mysql-amoeba-proxy-3.0.4-BETA Source distribution</p>
+       						<p>说明已经成功连接Mysql代理Amoeba。</p>
+       						<p>为了验证Amoeba读写分离配置是否生效，我们做一个简单的测试。</p>
+       						<p>先在181服务器master服务器上创建一个表。</p>
+       						<p><cite style="color: #1AA094;">mysql> create table sxit (id int(10) ,name varchar(10));</cite></p>
+       						<p>而后，分别停止服务器B和服务器C两个从数据库的主从复制，便于数据库操作观察。</p>
+       						<p>登陆服务器B从数据库。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# mysql -uroot -pyourpassword</cite></p>
+       						<p>停止从数据库主从复制。</p>
+       						<p><cite style="color: #1AA094;">mysql> slave stop;</cite></p>
+       						<p>登陆服务器C从数据库。</p>
+       						<p><cite style="color: #1AA094;">[root@chenllcentos ~]# mysql -uroot -pyourpassword</cite></p>
+       						<p>停止从数据库主从复制。</p>
+       						<p><cite style="color: #1AA094;">mysql> slave stop;</cite></p>
+       						<p>在主数据库插入。</p>
+       						<p><cite style="color: #1AA094;">mysql> insert into sxit values('1','zhangsan');</cite></p>
+       						<p>在从数据库B插入。</p>
+       						<p><cite style="color: #1AA094;">mysql> insert into sxit values('2','lisi');</cite></p>
+       						<p>在从数据库C插入。</p>
+       						<p><cite style="color: #1AA094;">mysql> insert into sxit values('3','john');</cite></p>
+       						<p><cite style="color: #1AA094;">登陆到amoeba服务器,进行读写分离的测试:</cite></p>
+       						<p><img src="../../public/beginneradmin/images/duxie8.png"></p>
+       						<p>重复执行多次，发现始终只显示从数据库的数据，说明如果进行数据库读操作，Amoeba只将读数据SQL命令路由至从数据库。</p>
+       						<p>登录主数据库。</p>
+       						<p><img src="../../public/beginneradmin/images/duxie9.png"></p>
+       						<p>可以验证，使用Amoeba对Mysql读写分离成功。若此时开启从数据库主从复制，则可以进行Mysql集群和负载均衡。</p>
+       						<p>使用Amoeba做数据库代理，对于应用层来说是透明的。所谓透明，可以这么简单理解，是否使用代理，在应用层编码上是没有任何区别的，即使用代理的情况下，应用层和数据层能够保持高度解耦。</p>
+						</div>
+					</fieldset>
+				</div>
+			</fieldset>
+		</div>
+</body>
+<script type="text/javascript">
+	var root = "__ROOT__";
+</script>
+</html>

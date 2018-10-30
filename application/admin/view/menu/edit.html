@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css"><!--
+    <link rel="stylesheet" type="text/css" href="__ROOT__/public/Metronic/global/plugins/jstree/dist/themes/default/style.min.css"/>
+     <link rel="stylesheet" type="text/css" href="__ROOT__/public/Metronic/global/plugins/bootstrap-switch/css/bootstrap-switch.min.css"/>
+    <link rel="stylesheet" type="text/css" href="__ROOT__/public/Metronic/global/plugins/bootstrap-markdown/css/bootstrap-markdown.min.css">-->
+    <link rel="stylesheet" href="__ROOT__/public/myadmin/css/amazeui.min.css">
+    <link rel="stylesheet" href="__ROOT__/public/myadmin/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__ROOT__/public/myadmin/fonts/css/font-awesome.min.css">
+    <style>
+    .cutarea {
+        line-height: 34px;
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+
+<body>
+<input type="hidden" id="id" value="{$rule.id}">
+    <div class="form-body" style="padding-left:100px;overflow: hidden;">
+        <div class="form-body" style="padding-left: 100px;">
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">菜单名称：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="menu" id="menu" value="{$rule.menu}" class="form-control" placeholder="菜单名称">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">父级菜单：</label>
+                    <div class="col-xs-8" id="element_id">
+                        <select class="item form-control " id="item" name="item" data-required="true" data-value="{$rule.pid}" data-first-title="选择父菜单"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">菜单路径：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="url" id="url" class="form-control" value="{$rule.url}" placeholder="菜单路径如（Jifen/index）">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">菜单排序：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="sortorder" id="sortorder" class="form-control" value="{$rule.sortorder}" placeholder="菜单排序如（1）">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">菜单状态：</label>
+                    <div class="col-xs-8" style="padding-top: 6px;">
+                        <input type="radio" name="status" id="status" value="1" {if condition="$rule.status eq 1"}checked{/if} >
+                        <label>启用</label>
+                        <input type="radio" name="status" id="status" value="0" {if condition="$rule.status eq 0"}checked{/if}>
+                        <label>关闭</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form">
+            <div class="layui-form-item">
+                <input type="hidden" id="data" value="" />
+                <div class="layui-input-block" style="margin-left: 240px;">
+                    <button id="btnSave" type="submit" class="layui-btn" lay-submit="" lay-filter="*" >提交</button>
+                    <button id="close" type="button" class="layui-btn layui-btn-primary">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="__ROOT__/public/jquery/layer/layer.js"></script>
+<script type="text/javascript" src="__ROOT__/public/res/js/jquery.cxselect.js?Math.random()"></script>
+<script src="__ROOT__/public/res/js/bttree.js"></script>
+<script type="text/javascript">
+layui.use('form', function() {
+
+    var form = layui.form();
+
+    form.on('submit(*)', function(data) {
+        var menu = $("#menu").val();
+        var pid = $("#item").val();
+        var url = $("#url").val();
+        var sortorder = $("#sortorder").val();
+        var name = "admin/" + url;
+        var status = $('input[name="status"]:checked').val();
+        var isbutton = $('input[name="isbutton"]:checked').val();
+        var id = $("#id").val();
+        if (menu == '') {
+            layer.msg("菜单名称不能为空！");
+            return;
+        }
+        var jsonData = {
+			"id": id,
+            "menu": menu,
+            'url': url,
+            "pid": pid,
+            "path": pid,
+            "status": status,
+            'sortorder': sortorder
+
+        };
+        $.ajax({
+            url: "{:url('menu/edit')}",
+            type: 'post',
+            data: jsonData,
+            dataType: 'json',
+            success: function(json) {
+                layer.msg(json.msg);
+                if (json.code == 1) {
+                    setTimeout(function() {
+                        parent.location.reload();
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }, 1000)
+                }
+            }
+        })
+        return false;
+    })
+});
+$(function() {
+    $('#element_id').cxSelect({
+        url: 'getAuthCategory', // 提示：如果服务器不支持 .json 类型文件，请将文件改为 .js 文件
+        selects: ['item'],
+        nodata: 'none'
+    });
+    //关闭弹窗
+    $('#close').click(function() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+    });
+});
+</script>
+
+</html>

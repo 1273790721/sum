@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/easyui/themes/material/easyui.css">
+    <link rel="stylesheet" href="__ROOT__/public/easyui/themes/icon.css">
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body style="padding: 16px;">
+<a class="layui-btn" href="javascript:;" onclick="add();">添加</a><br />
+	<table id="tree"></table>
+    <blockquote class="layui-elem-quote">菜单管理列表说明：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <p>
+            1.在页面引入easyui插件及css。
+        </p>
+        <span class="layui-code">
+            <link rel="stylesheet" href="__ROOT__/public/easyui/themes/material/easyui.css">
+            <link rel="stylesheet" href="__ROOT__/public/easyui/themes/icon.css">
+            <script type="text/javascript" src="__ROOT__/public/easyui/jquery.easyui.min.js"></script>
+        </span>
+        <p>
+            2.页面加载时，初始化ajax树。
+        </p>
+        <pre class="layui-code">
+$(function(){
+    initTable();
+    $(window).resize(function(){
+        initTable();
+    });
+})
+function initTable() {
+    $('#tree').treegrid({
+        url: "{:url('tree/ajax_tree')}",//这里为后台请求地址
+        rownumbers: true,
+        idField: 'i',
+        animate:true,
+        treeField: 'tree_name',
+        columns: [
+            [{
+                field: 'tree_name',
+                title: '书名',
+                align: 'left',
+                width: "100%"
+            }]
+        ]
+    });
+}
+        </pre>
+        <p>
+            3.后台处理数据，以json格式返回给前台。例如：
+        </p>
+        <pre class="layui-code">
+$return = 
+[
+    ['i'=>1,'tree_name'=>'西游记',
+    'children'=>[['i'=>2,'tree_name'=>'第一章'],['i'=>3,'tree_name'=>'第二章']]],
+    ['i'=>4,'tree_name'=>'三国演义',
+    'children'=>[['i'=>5,'tree_name'=>'第一章'],['i'=>6,'tree_name'=>'第二章']]]
+];
+echo json_encode($return);
+        </pre>
+    </blockquote>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.use('code',function(){
+        layui.code({
+            encode:true,
+            elem:'span',
+        });
+    })
+	$(function(){
+		initTable();
+        $(window).resize(function(){
+            initTable();
+        });
+	})
+	function initTable() {
+        $('#tree').treegrid({
+            url: "{:url('menu/ajax_tree')}",
+            rownumbers: true,
+            idField: 'i',
+            animate:true,
+            treeField: 'tree_name',
+            columns: [
+                [{
+                    field: 'tree_name',
+                    title: '菜单',
+                    align: 'left',
+                    width: "85%"
+                },{
+					field: 'null',
+					title: '操作',
+					align: 'left',
+					width: "15%",
+					formatter: function(value, row, index) {
+                    return '<a href="javascript:;" style="font-size:14px;margin-right:17px; color:#7a7676;" onclick="edit(' + row.id + ')">编辑</a><a href="javascript:;" style="font-size:14px;margin-right:17px; color:#7a7676;"  onclick="del(' + row.id + ')">删除</a>';
+                           
+					}
+				}]
+            ]
+        });
+    }
+	layui.use('layer',function(){
+        var layer = layui.layer;
+    })
+    function add(){
+        layer.open({
+            type: 2,
+            title: '添加',
+            maxmin: true,
+            shadeClose: false,
+            area: ['900px','600px'],
+            content: ["{:url('menu/add')}"]
+        })
+    }
+    function edit(id){
+        layer.open({
+            type: 2,
+            title: '编辑',
+            maxmin: true,
+            shadeClose: false,
+            area: ['900px','600px'],
+            content: ["{:url('menu/edit')}?id="+id]
+        })
+    }
+</script>
+</html>

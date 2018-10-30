@@ -1,0 +1,9 @@
+.s1{padding:5px;width:100%;height:300px;}
+.s1 .pic{width:70px;float:left; margin-top: 10px;}
+.s1 .lf_info{width:80%;float:left; padding-top:5px;}
+.s1 .line{width:100%; padding-left: 10px; height:90px;margin-top:10px; }
+.s1 .line:hover{
+    background: #ABCDEF;
+}
+.s1 div img {width:100%; height:100%;}
+.s1 div p{padding-left: 10px;}

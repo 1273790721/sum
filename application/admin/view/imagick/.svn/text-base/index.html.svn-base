@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <style>
+        .sign{
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <blockquote class="layui-elem-quote">windows环境安装扩展方法：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <div class="sign">
+            1.安装ImageMagick软件https://www.imagemagick.org/script/index.php，注意安装路径不能有中文和空格。官网的安装包版本太高，php加载imagick扩展失败。这里用的是ImageMagick-6.9.8-3-Q16-HDRI-x64-dll.exe。
+        </div>
+        <div class="sign">
+            2.下载imagick扩展http://pecl.php.net/package/imagick/3.4.3/windows，根据windows和php选择版本。这里用的是7.0 Thread Safe (TS) x64，注意Thread Safe表示开启线程安全，Non Thread Safe表示关闭线程安全，在phpinfo可以查看Thread Safety是否开启。如果Thread Safety是enabled，下载Thread Safe版本；如果Thread Safety是disabled，下载Non Thread Safe版本。
+        </div>
+        <div class="sign">
+            3.解压刚刚下载的imagick扩展包，把php_imagick.dll复制到php安装目录下的ext文件夹下面，把以CORE开头dll结尾的扩展文件复制到php的安装目录下面。
+        </div>
+        <div class="sign">
+            4.打开php.ini文件，添加extension=php_imagick.dll，开启imagick扩展。
+        </div>
+        <div class="sign">
+            5.重启php，打开phpinfo，看到imagick扩展就表示安装成功了；或者用php函数extension_loaded来查看imagick是否加载成功。
+        </div>
+        <div class="sign">
+            6.利用imagick使pdf转png还需要安装Ghostscript软件https://sourceforge.net/projects/ghostscript，不然转不了。
+        </div>
+    </blockquote>
+    <blockquote class="layui-elem-quote">linux环境安装扩展方法：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <div class="sign">
+            1.下载ImageMagick软件wget http://www.imagemagick.org/download/ImageMagick.tar.gz
+        </div>
+        <div class="sign">
+            解压该压缩包tar zxvf ImageMagick.tar.gz
+        </div>
+        <div class="sign">
+            进入解压后的目录cd ImageMagick-6.7.9-3
+        </div>
+        <div class="sign">
+            配置./configure --prefix=/usr/local/imagemagick
+        </div>
+        <div class="sign">
+            编译make，安装make install
+        </div>
+        <div class="sign">
+            设置环境变量export PKG_CONFIG_PATH=/usr/local/imagemagick/lib/pkgconfig/
+        </div>
+        <div class="sign">
+            2.下载imagick扩展wget http://pecl.php.net/get/imagick-3.0.1.tgz
+        </div>
+        <div class="sign">
+            解压该压缩包tar zxvf imagick-3.0.1.tar.gz
+        </div>
+        <div class="sign">
+            进入解压后的目录cd imagick-3.0.1
+        </div>
+        <div class="sign">
+            生成配置文件/usr/local/php/bin/phpize
+        </div>
+        <div class="sign">
+            配置./configure --with-php-config=/usr/local/php/bin/php-config --with-imagick=/usr/local/imagemagick
+        </div>
+        <div class="sign">
+            编译make，安装make install
+        </div>
+        <div class="sign">
+            3.配置php支持imagick扩展vim /usr/local/php/etc/php.ini，加上extension=imagick.so。
+        </div>
+        <div class="sign">
+            4.安装Ghostscript软件，方法同ImageMagick。
+        </div>
+    </blockquote>
+    <blockquote class="layui-elem-quote">pdf转图片方法：</blockquote>
+    <blockquote class="layui-elem-quote layui-quote-nm">
+        <pre class="layui-code">
+public function pdf2png(){
+    $root = ROOT_PATH;
+    $filename = $root.I('post.url');//pdf文件地址
+    if(!extension_loaded('imagick')){
+        echo json_encode(array('code'=>0,'msg'=>'没有安装imagick扩展'));exit;
+    }
+    if(!file_exists($filename)){
+        echo json_encode(array('code'=>0,'msg'=>'pdf文件不存在'));exit;
+    }
+    $image = new \Imagick($filename);
+    $return = array();//返回图片地址的数组
+    foreach($image as $k=>$v){
+        $v->setImageFormat('png');
+        $uniqid = md5(uniqid(md5(microtime(true)),true));
+        $rootpath = '/Public/Upload/pdf/'.$uniqid.'.png';
+        $savepath = $root.$rootpath;
+        if($v->writeImage($savepath)){
+            $return[] = C('root_url').$rootpath;
+        }
+    }
+    echo json_encode(array('code'=>1,'msg'=>'上传成功','data'=>$return));exit;
+}
+        </pre>
+    </blockquote>
+    <script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+    <script type="text/javascript">
+        var root = "__ROOT__";
+        layui.use('code',function(){
+            layui.code({
+                encode:true,
+                elem:'zi',
+            });
+        })
+    </script>
+</body>
+</html>

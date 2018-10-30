@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <link rel="stylesheet" href="__ROOT__/public/myadmin/css/amazeui.min.css">
+    <link rel="stylesheet" href="__ROOT__/public/myadmin/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__ROOT__/public/myadmin/fonts/css/font-awesome.min.css">
+    <style>
+    .cutarea {
+        line-height: 34px;
+        margin-bottom: 10px;
+    }
+    </style>
+</head>
+
+<body>
+    <input type="hidden" id="id" value="{$user.id}">
+    <div class="form-body" style="padding-left:100px;">
+        <div class="form-body" style="padding-left: 100px;">
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">权限名称：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="title" id="title" value="{$user.title}" class="form-control" placeholder="权限名称">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">权限图标：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="icon" id="icon" value="{$user.icon}" class="form-control" placeholder="权限图标">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2 ">父级栏目：</label>
+                    <div class="col-xs-8" id="element_id">
+                        <select class="item form-control " id="item" name="item" data-required="true" data-value="{$user.pid}" data-first-title="选择父栏目"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">权限路径：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="name" id="name" class="form-control" value="{$user.url}" placeholder="权限路径如（Jifen/index）">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">权限排序：</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="sortorder" id="sortorder" class="form-control" value="{$user.sortorder}" placeholder="权限路径如（1）">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-12 cutarea">
+                    <label class="control-label col-xs-2">权限状态：</label>
+                    <div class="col-xs-8" style="padding-top: 6px;">
+                        <input type="radio" name="status" id="status" value="1" {eq name="user['status']" value="1" }checked{/eq}>
+                        <label>启用</label>
+                        <input type="radio" name="status" id="status" value="0" {eq name="user['status']" value="0" }checked{/eq}>
+                        <label>关闭</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form">
+            <div class="layui-form-item">
+                <input type="hidden" id="data" value=""></input>
+                <div class="layui-input-block" style="margin-left: 240px;">
+                    <button id="btnSave" type="submit" class="layui-btn" lay-submit="" lay-filter="*">提交</button>
+                    <button id="close" type="button" class="layui-btn layui-btn-primary">取消</button>
+                </div>
+            </div>
+        </div>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="__ROOT__/public/res/js/jquery.cxselect.js?Math.random()"></script>
+<script src="__ROOT__/public/res/js/bttree.js"></script>
+<script type="text/javascript">
+layui.use('form', function() {
+
+    var form = layui.form();
+
+    form.on('submit(*)', function(data) {
+        var id = $("#id").val();
+        var title = $("#title").val();
+        var group = "admin";
+        var pid = $("#item").val();
+        var url = $("#name").val();
+        var icon = $("#icon").val();
+        var sortorder = $("#sortorder").val();
+        var name = "admin/" + url;
+        var status = $('input[name="status"]:checked').val();
+        var isbutton = $('input[name="isbutton"]:checked').val();
+        var id = $("#id").val();
+        if (title == '') {
+            layer.msg("权限名称不能为空！");
+            return;
+        }
+        var jsonData = {
+            "id": id,
+            "title": title,
+            'name': name,
+            'group': group,
+            "pid": pid,
+            "path": pid,
+            "url": url,
+            "icon": icon,
+            "status": status,
+            'isbutton': isbutton,
+            'sortorder': sortorder
+        };
+        $.ajax({
+            url: "{:url('rule/edit')}",
+            type: 'post',
+            data: jsonData,
+            dataType: 'json',
+            success: function(json) {
+                layer.msg(json.msg);
+                if (json.code == 1) {
+                    setTimeout(function() {
+                        parent.location.reload();
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }, 1000)
+                }
+            }
+        })
+        return false;
+    })
+});
+$(function() {
+    $('#element_id').cxSelect({
+        url: 'getAuthCategory', // 提示：如果服务器不支持 .json 类型文件，请将文件改为 .js 文件
+        selects: ['item'],
+        nodata: 'none'
+    });
+    //关闭弹窗
+    $('#close').click(function() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+    });
+});
+//选中图标
+$('#selecticon').click(function() {
+    layer.open({
+        type: 2,
+        title: '选择图标',
+        maxmin: true,
+        shadeClose: true, //点击遮罩关闭层
+        area: ['800px', '450px'],
+        content: 'icons'
+    });
+});
+//删除图标
+$('#clearicon').click(function() {
+    $('#authicon').text("");
+    $('#icon').val("");
+    $('#authicon').attr("class", "");
+});
+</script>
+
+</html>

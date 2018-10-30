@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+	<style>
+		p{
+			margin: 10px 0;
+		}
+	</style>
+</head>
+<body style="padding: 16px;">
+<blockquote class="layui-elem-quote">同步登录说明：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.同步登录的网站有thinkphp网站、cms网站、discuz网站。discuz自带ucenter的服务端和自身的ucenter客户端，cms自带自身的ucenter客户端，thinkphp需要配置自身的ucenter客户端。
+	</p>
+	<p>
+		2.为了更加形象地描述同步登录，thinkphp网站的网址为www.tp.com，cms网站的网址为www.cms.com，discuz网站的网址为www.discuz.com。
+	</p>
+	<p>
+		3.由于php7废除了很多mysql函数，而且ucenter很多没有更新了，目前ucenter是不支持php7的。
+	</p>
+</blockquote>
+<blockquote class="layui-elem-quote">添加thinkphp应用：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.配置thinkphp的ucenter客户端。在thinkphp网站根目录建立ucenter目录，在该目录下新建名为config.inc.php的空文件。下载ucenter，把压缩包里面advanced下的uc_client文件夹复制到www.tp.com/ucenter目录下，把压缩包里面advanced/examples下的api、code、include文件夹复制到www.tp.com/ucenter目录下。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406173128.png" alt="">
+	<p>
+		2.打开www.tp.com/ucenter/api/uc.php，把下面这段代码注释，不然会通信失败。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407100849.png" alt="">
+	<p>
+		1.登录discuz的后台www.discuz.com/admin.php（帐号密码为安装时设置的管理员帐号密码）。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406164338.png" alt="">
+	<p>
+		3.点击ucenter，登录ucenter，点击应用管理，添加新应用。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406171055.png" alt="">
+	<p>
+		4.提交成功后，点击编辑，将生成的应用配置信息复制到www.tp.com/ucenter/config.inc.php文件里面并保存。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406204044.png" alt="">
+</blockquote>
+<blockquote class="layui-elem-quote">添加cms应用：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.点击添加应用。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406174900.png" alt="">
+	<p>
+		2.提交成功后，点击编辑，将生成的应用配置信息复制到www.cms.com/phpsso_server/caches/configs/uc_config.php文件里面并保存。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406204044.png" alt="">
+	<p>
+		3.进入cms后台www.cms.com/admin.php（帐号密码为安装时设置的管理员帐号密码）。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170406205031.png" alt="">
+	<p>
+		如果显示通信成功，就表示彼此之间可以通信了（图片中的应用地址是本地测试的网站地址，以实际网站地址为准）。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407101838.png" alt="">
+</blockquote>
+<blockquote class="layui-elem-quote">更改apps文件：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		复制www.discuz.com/uc_server/data/cache/apps.php文件，分别覆盖到www.discuz.com/uc_client/data/cache/apps.php、www.cms.com/phpsso_server/api/uc_client/data/cache/apps.php、www.tp.com/ucenter/uc_client/data/cache/apps.php文件。该文件内容例子如下：
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407103245.png" alt="">
+</blockquote>
+<blockquote class="layui-elem-quote">配置discuz：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.登录discuz后台，设置允许直接激活。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407141011.png" alt="">
+	<p>
+		2.更改discuz的www.discuz.com/api/uc.php文件的同步登录synlogin方法。
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407141653.png" alt="">
+</blockquote>
+<blockquote class="layui-elem-quote">同步登录：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		说明：这里把登录注册功能统一放在thinkphp网站。
+	</p>
+	<p>
+		注册：当点击注册时，调用www.tp.com/ucenter/uc_client/client.php文件下的uc_user_register方法，该方法会验证数据的合法性，注册成功后返回uid，把数据写进thinkphp的用户表。
+	</p>
+	<p>
+		注册表单如下：
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407150037.png" alt="">
+	<p>
+		注册方法如下：
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407150308.png" alt="">
+	<p>
+		登录：当注册成功后跳转到登录页面，点击登录时，判断数据合法性，调用www.tp.com/ucenter/uc_client/client.php文件下的uc_user_synlogin方法，该方法会返回一段js代码，在页面输出这段代码，该代码会分别请求每个网站的uc.php文件的synlogin方法，该方法会查询该网站的用户表，如果不存在该用户，自动注册并登录，如果存在该用户，自动登录。
+	</p>
+	<p>
+		退出：当点击退出时，调用www.tp.com/ucenter/uc_client/client.php文件下的uc_user_synlogout方法，该方法会返回一段js代码，在页面输出这段代码，该代码会分别请求每个网站的uc.php文件的synlogout方法，该方法会清除该网站的用户信息，实现同步退出。
+	</p>
+	<p>
+		登录表单如下：
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407150408.png" alt="">
+	<p>
+		登录方法如下：
+	</p>
+	<img src="__ROOT__/public/admin/images/20170407150523.png" alt="">
+</blockquote>
+</body>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+	layui.use('code',function(){
+		layui.code({
+			encode:true,
+			elem:'span',
+		});
+	})
+</script>
+</html>

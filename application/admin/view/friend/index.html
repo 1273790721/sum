@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>friends</title>
+    <link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+    <link rel="stylesheet" href="__ROOT__/public/webuploader/webuploader.css">
+    <link rel="stylesheet" href="__ROOT__/public/admin/css/webuploader.css">
+    <link rel="stylesheet" href="__ROOT__/public/qqface/css/qq.css">
+    <link rel="stylesheet" href="__ROOT__/public/admin/friends/friends.css">
+</head>
+
+<body>
+    <div class="talk-box">
+        <div class="talk-box-input-area">
+            <textarea class="talk-box-input" id="content" cols="30" rows="10"></textarea>
+        </div>
+        <div id="uploader" class="wu-example">
+            <div class="talk-box-btn">
+                <span class="talk-box-btn-tip">您还可以输入<span class="talk-box-btn-num">200</span>个字</span>
+                <span class="emotion"></span>
+                <span class="addimg">tu</span>
+                <span class="talk-box-btn-add">@</span>
+                <div class="talk-box-btn-pub" id="pub-talk">发表</div>
+                <div class="talk-box-btn-subadd">
+                    <div class="toput">
+                        <ul></ul>
+                        <button class="addbtn">确定</button>
+                        <div class="shadow"></div>
+                    </div>
+                    <div class="groups">
+                        <ul>
+                            <li class="active">我的好友</li>
+                        </ul>
+                        <div class="shadow"></div>
+                    </div>
+                    <div class="friendlist">
+                        <ul>
+                            {foreach name="friends" item="v" key="k"}
+                            <li id="{$k}">{$v}</li>
+                            {/foreach}
+                        </ul>
+                        <span class="shadow"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="statusBar" style="display:none;">
+                <div class="progress">
+                    <span class="text">0%</span>
+                    <span class="percentage"></span>
+                </div>
+                <div class="info"></div>
+                <div class="btns">
+                    <div id="filePicker2"></div>
+                    <div class="uploadBtn">开始上传</div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="img-data">
+        <input type="hidden" id="mention">
+    </div>
+    <div class="active-kinds">
+        {eq name="Think.get.tip" value="aboutme"}
+        <a href="{:url('friend/index')}" class="layui-btn layui-btn-small layui-btn-primary">好友动态</a>
+        <a href="{:url('friend/index')}?tip=aboutme" class="layui-btn layui-btn-small">提到我的</a> {else/}
+        <a href="{:url('friend/index')}" class="layui-btn layui-btn-small">好友动态</a>
+        <a href="{:url('friend/index')}?tip=aboutme" class="layui-btn layui-btn-small layui-btn-primary">提到我的</a> {/eq}
+    </div>
+    <div class="active-list-wraper">
+        {foreach name="talks" item="v"}
+        <div class="active-list">
+            <div class="userinfo">
+                <img src="__ROOT__{$v['icon']}" class="user-avatar" alt="">
+                <div class="user-extr">
+                    <p class="user-name">{$v['true_name']}</p>
+                    <p class="pub-time">{$v['pub_time']}</p>
+                </div>
+            </div>
+            <div class="active-content">
+                <p>{$v['content']}</p>
+            </div>
+            <div class="active-images">
+                {notempty name="v['imgs']"} {foreach name="v['imgs']" item="vi"}
+                <div class="active-image-box">
+                    <img src="__ROOT__{$vi}" alt="">
+                </div>
+                {/foreach} {/notempty}
+            </div>
+            {notempty name="v['first_talk']"}
+            <div class="active-turn">
+                <p class="active-turn-user">{$v['first_talk']['true_name']}:</p>
+                <p>{$v['first_talk']['content']}</p>
+            </div>
+            {/notempty}
+            <div class="active-zans">
+                {notempty name="v['like_names']"} {foreach name="v['like_names']" item="vl"}
+                <p>{$vl['true_name']}</p>
+                {/foreach}
+                <p>等{$v['like_num']}人觉得很赞。</p>
+                {/notempty}
+            </div>
+            <div class="active-funcs">
+                <div class="active-zan active-func" onclick="click_like(this,{$v['id']})">点赞</div>
+                <div class="active-comment active-func">评论</div>
+                <div class="active-send active-func" onclick="send_talk({$v['id']})">转发</div>
+            </div>
+            <div class="active-comment-list">
+                {foreach name="v['firsts']" item="vv"}
+                <div class="active-comment-item">
+                    <div class="active-comment-item-inner">
+                        <img src="__ROOT__{$vv['create_icon']}" alt="" class="commer-avatar">
+                        <div class="comment-content">
+                            <span class="commer-username">{$vv['create_username']}</span>：<span class="commer-content">{$vv['content']}</span>
+                            <p class="pub-time">
+                                <span>{$vv['create_time']}</span><span class="commer-reply"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="active-replay-list">
+                        {foreach name="vv['childs']" item="vvv"}
+                        <div class="active-reply-item">
+                            <img src="__ROOT__{$vvv['create_icon']}" alt="" class="commer-avatar">
+                            <div class="comment-content">
+                                <span class="reply-username">{$vvv['create_username']}</span> 回复 <span class="reply-username">{$vvv['reply_username']}</span>：<span class="reply-content">{$vvv['content']}</span>
+                                <p class="pub-time">
+                                    <span>{$vvv['create_time']}</span><span class="reply-reply"></span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="active-reply-area">
+                            <textarea name="" class="active-reply-input" placeholder="回复" cols="30" rows="10"></textarea>
+                            <div class="active-reply-btn">
+                                <span class="active-reply-btn-send" onclick="child(this,{$vvv['id']})">回复</span>
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                    <div class="commer-reply-area">
+                        <textarea name="" class="commer-reply-input" placeholder="回复" cols="30" rows="10"></textarea>
+                        <div class="commer-reply-btn">
+                            <span class="commer-reply-btn-send" onclick="reply(this,{$vv['id']})">回复</span>
+                        </div>
+                    </div>
+                </div>
+                {/foreach}
+            </div>
+            <div class="comment-area">
+                <textarea name="" class="comment-area-input" placeholder="评论" cols="30" rows="10"></textarea>
+                <div class="comment-btn">
+                    <span class="comment-btn-send" onclick="comment(this,{$v['id']})">评论</span>
+                </div>
+            </div>
+        </div>
+        {/foreach}
+    </div>
+    <div class="explanation">
+        <blockquote class="layui-elem-quote">朋友圈说明：</blockquote>
+        <blockquote class="layui-elem-quote layui-quote-nm">
+            当添加好友后，好友和自己的动态会显示在动态列表里面，这里的动态只显示最新的两条。
+        </blockquote>
+        <blockquote class="layui-elem-quote">发表动态：</blockquote>
+        <blockquote class="layui-elem-quote layui-quote-nm">
+            <p>
+                在输入框发表动态，后台添加成功后，显示在好友动态列表里面。
+            </p>
+        </blockquote>
+        <blockquote class="layui-elem-quote">评论动态：</blockquote>
+        <blockquote class="layui-elem-quote layui-quote-nm">
+            <p>
+                在输入框发表评论，后台添加成功后，显示在当前动态评论列表里面。
+            </p>
+        </blockquote>
+    </div>
+    <script type="text/javascript">
+    var root = "__ROOT__";
+    </script>
+    <script type="text/javascript" src="__ROOT__/public/qqface/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__ROOT__/public/qqface/js/jquery.qqFace.js"></script>
+    <script type="text/javascript" src="__ROOT__/public/webuploader/webuploader.js"></script>
+    <script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+    <script type="text/javascript">
+    layui.use('layer', function() {
+        var layer = layui.layer;
+    })
+    layui.use('code', function() {
+        layui.code({
+            encode: true,
+            elem: 'zi',
+        });
+    })
+    $('.emotion').qqFace({
+        assign: 'content',
+        path: '__ROOT__/public/qqface/arclist/',
+    });
+
+    function replace(str) {
+        str = str.replace(/\</g, '<；');
+        str = str.replace(/\>/g, '>；');
+        str = str.replace(/\n/g, '<；br/>；');
+        var url = '__ROOT__/public/qqface/arclist/';
+        str = str.replace(/\[em_([0-9]*)\]/g, '<img src="' + url + '$1.gif" border="0" />');
+        return str;
+    }
+    </script>
+    <script src="__ROOT__/public/admin/friends/friends.js"></script>
+</body>
+
+</html>

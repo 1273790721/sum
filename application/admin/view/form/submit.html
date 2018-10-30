@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body style="padding: 16px;">
+	<form class="layui-form">
+		<div class="layui-form-item">
+			<label class="layui-form-label">姓名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="name" class="layui-input" lay-verify="required">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">性别：</label>
+			<div class="layui-input-block">
+				<input type="radio" name="sex" value="1" title="男" checked>
+				<input type="radio" name="sex" value="0" title="女">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">年龄：</label>
+			<div class="layui-input-block">
+				<input type="text" name="age" class="layui-input" lay-verify="num">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注：</label>
+			<div class="layui-input-block">
+				<textarea name="mark" class="layui-textarea" lay-verify="required"></textarea>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="*">提交</button>
+				<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+			</div>
+		</div>
+	</form>
+</body>
+<blockquote class="layui-elem-quote">表单提交前台使用说明：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.该表单应用了layui的form表单集合，在页面引入相关的layui.css和layui.js文件以及jquery.js，例如：
+	</p>
+	<span class="layui-code">
+		<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+		<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+		<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+	</span>
+	<p>
+		2.layui提供了丰富的表单元素，在页面加入表单元素，例如：
+	</p>
+	<span class="layui-code">
+		<div class="layui-form-item">
+			<label class="layui-form-label">姓名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="name" class="layui-input" lay-verify="required">
+			</div>
+		</div>
+	</span>
+	<p>
+		3.在刚刚加入的表单中加入验证规则标签lay-verify，规则可以有效的限制字段的合法性，防止恶意的提交，例如：
+	</p>
+	<span class="layui-code">
+		<input type="text" name="age" class="layui-input" lay-verify="num">
+	</span>
+	<p>
+		4.利用上一步的lay-verify="num"标签在script标签里面写验证规则的代码，一般通过正则表达式来验证，例如：
+	</p>
+	<pre class="layui-code">
+form.verify({
+	num:function(value){
+		var reg = /^[1-9]{1}[0-9]*$/;
+		if(reg.test(value) === false){
+			return '请输入正整数';
+		}
+	}
+})
+	</pre>
+	<p>
+		5.点击提交，利用ajax请求，把数据传给后台，后台处理数据后返回结果给前台，例如：
+	</p>
+	<pre class="layui-code">
+form.on('submit(*)',function(data){
+	$.ajax({
+		url:"{:url('form/submit')}",
+		type:'post',
+		data:data.field,
+		dataType:'json',
+		success:function(json){
+			layer.msg(json.msg);
+			if(json.code == 1){
+				setTimeout(function(){
+					window.location.reload();
+				},1000)
+			}
+		}
+	})
+	return false;
+})
+	</pre>
+</blockquote>
+<blockquote class="layui-elem-quote">表单提交后台使用说明：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		后台接受ajax发送的数据，根据前台的验证规则，后台也要验证一遍，防止恶意绕过前台验证。后台验证通过后把数据写进数据库，并返回结果给前台。例如：
+	</p>
+	<pre class="layui-code">
+if(!preg_match('/^[1-9]{1}[0-9]*$/',input('post.age'))){
+	echo json_encode(array('code'=>0,'msg'=>'请输入正整数'));exit;
+}
+$result = db('submit','admin_db')->insert(input('post.'));
+if($result){
+	echo json_encode(array('code'=>1,'msg'=>'提交成功'));exit;
+}else{
+	echo json_encode(array('code'=>0,'msg'=>'提交失败'));exit;
+}
+	</pre>
+</blockquote>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript">
+	layui.use('code',function(){
+		layui.code({
+			encode:true,
+			elem:'span',
+		});
+	})
+	layui.use('form', function(){
+		var form = layui.form();
+		form.verify({
+			num:function(value){
+				var reg = /^[1-9]{1}[0-9]*$/;
+				if(reg.test(value) === false){
+					return '请输入正整数';
+				}
+			}
+		})
+		form.on('submit(*)',function(data){
+			$.ajax({
+				url:"{:url('form/submit')}",
+				type:'post',
+				data:data.field,
+				dataType:'json',
+				success:function(json){
+					layer.msg(json.msg);
+					if(json.code == 1){
+						setTimeout(function(){
+							window.location.reload();
+						},1000)
+					}
+				}
+			})
+			return false;
+		})
+	});
+</script>
+</html>

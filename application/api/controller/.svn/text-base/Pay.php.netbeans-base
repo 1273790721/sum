@@ -1,0 +1,370 @@
+<?php
+namespace app\api\controller;
+use think\Controller;
+use think\Request;
+use think\Db;
+class Pay extends BaseApi
+{
+    
+    /**
+     * author liuqin
+     *支付接口
+     */
+    public function money(){
+        $where['id']=1;
+        $is_user = M("help") ->where($where)->find();
+        $result['money'] = empty($is_user['cost']) ? '0' : $is_user['cost'];
+        $this->SuccessReturn($result);
+    }
+    
+     /**
+      * author liuqin
+     *支付接口
+     */
+    public function order(){
+        $data = array();
+        $result = array();
+       // $scale = C('aConfig');
+        $id = 1;//$_GET['uid'];//用户id
+        //$id=I('get.uid');
+        //$num = (int)I('num');//年份
+        $money = 0.01;//I('money');//金额
+        $type = $_GET['type'];//I('type');//支付类型，1：支付宝支付，2：微信支付 4：ios内购
+//        if(empty($num)){
+//            $num=1;
+//        }
+      //  $year=date('Y-',time())+$num-1;
+        if(empty($id)){
+            $this->ErrorReturn('用户id不能为空',0);
+        }
+        if($type==4){
+            $data['uid'] = $id;
+                $data['cost'] = $money;
+                $data['type'] = $type;
+                $data['date'] = date('Y-m-d',time());
+              //  $data['year_end']=$year;
+              //  $data['limit_date'] = $year.'-12-31';
+                $data['status']=1;
+                $res = Db::connect('admin_db')->name('pay')->insertGetId($data);
+            //    $result = Db::connect('admin_db')->name('submit')->update(input('post.'));
+            //   $res = M("user_pay")->add($data);
+                if($res){
+                    $this->SuccessReturn($result);
+                }else{
+                    $this->ErrorReturn('提交失败',0);
+                }
+        }else{
+            if(!empty($money)&&$money!=0){
+                if($type==1||$type==2){
+                    $data['uid'] = $id;
+                    $data['cost'] = $money;
+                    $data['type'] = $type;
+                    $data['date'] = date('Y-m-d',time());
+                 //   $data['year_end']=$year;
+                  //  $data['limit_date'] = $year.'-12-31';
+                   // $res = Db::connect('admin_db')->name('pay')->insert($data);
+                     $res = Db::connect('admin_db')->name('pay')->insertGetId($data);
+                    //$res = M("user_pay")->add($data);
+                    if($res!==false){
+                        if($type==1){
+                           // require C('BASE_PATH').'/ThinkPHP/Library/Btten/Payment/'.$type.'/notify_url.php';
+                           // require_once('./ThinkPHP/Library/Btten/Payment/Alipay/notify_url.php');
+                            require_once('./ThinkPHP/Library/Btten/Payment/Alipay/order.php');
+                           // require_once("./Alipay/lib/alipay_rsa.function.php");
+                            //$result['orderinfo'] = array();
+                            $result['url'] = pay($res, '路路平安缴费', $money);
+                        }else{
+                            //$result['orderinfo'] = array();
+                            require_once('./ThinkPHP/Library/Btten/Payment/Wpay/order.php');
+                            $result['config'] = pay($res, '路路平安缴费', $money);
+                        }
+                        $result['oid'] = $res;
+                        $this->SuccessReturn($result);
+                    }else{
+                        $this->ErrorReturn('下单失败',0);
+                    }
+                }else{
+                    $this->ErrorReturn('选择支付方式',0);
+                }
+            }else{
+                $this->ErrorReturn('充值金额不合法',0);
+            }
+        }
+    }
+
+    /*
+     * author liuqin
+     */
+ public function notify(){
+        
+        $type = I('type');
+//        if($types==1){
+//            $type='Alipay';
+//        }
+//        if($types==2){
+//            $type='Wpay';
+//        }
+        $type = ucfirst($type);
+        !$type and $type = 'Wpay';
+       // require C('BASE_PATH').'/ThinkPHP/Library/Btten/Payment/Alipay/notify_url.php';
+        require C('BASE_PATH').'/ThinkPHP/Library/Btten/Payment/'.$type.'/notify_url.php';
+        //require_once('./ThinkPHP/Library/Btten/Payment/Alipay/notify_url.php');
+       // require_once('./ThinkPHP/Library/Btten/Payment/'.$type.'/notify_url.php');
+        //require C('BASE_PATH').'/ThinkPHP/Library/Btten/Payment/'.$type.'/notify_url.php';
+        
+    }
+    
+//     if($res){
+//            //调用接口的order.php处理
+//            $type = ucfirst($type);
+//            require C('BASE_PATH').'/ThinkPHP/Library/Btten/Payment/'.$type.'/order.php';
+//            
+//            $config = pay($res, $title, $cash);
+//            
+//            
+//            switch ($type){
+//                case 'Alipay':
+//                    $result['url'] = $config;
+//                    break;
+//                case 'Wpay':
+//                    $result['config'] = $config;
+//                    break;
+//            }
+//            
+//            $result['oid'] = $res;
+//            $this->SuccessReturn($result);
+//            
+//        }else{
+//            $info = '订单创建失败';
+//            $this->ErrorReturn($info);
+//        }
+    
+    /**
+     * author liuqin
+     * 苹果支付回调
+     */
+    public function getReceiptData($isSandbox = true){
+        $result = array();
+		$receipt = $_REQUEST["receipt"];
+		$receiptArr = base64_decode($receipt);
+		if(strpos($receiptArr,"\"environment\" = \"Sandbox\"") === false){
+		    $endpoint = 'https://buy.itunes.apple.com/verifyReceipt';
+		}else{
+		    $endpoint = 'https://sandbox.itunes.apple.com/verifyReceipt';
+		}
+		$uid = I("uid");
+		$result['receipt'] =$receipt;
+        $postData = json_encode( array('receipt-data' => $receipt) );
+        $ch = curl_init($endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0); //这两行一定要加，不加会报SSL 错误
+        curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        $response = curl_exec($ch);
+        $errno = curl_errno($ch);
+        $errmsg = curl_error($ch);
+        curl_close($ch);
+
+        //判断时候出错，抛出异常
+        if ($errno != 0) {
+            //throw new Exception($errmsg, $errno);
+            $params['order_number'] = $this->make_order_number();
+            $params['receipt'] = $receipt;
+            $params['uid'] = $uid;
+            save_IOS_buy($params);
+            $this->ErrorReturn("errno:".$errno);
+        }
+        $data = json_decode($response);
+        //判断返回的数据是否是对象
+        if (!is_object($data)) {
+            //throw new Exception('Invalid response data');
+            $this->ErrorReturn("data is not a object");
+        }
+        //判断购买时候成功
+        if (!isset($data->status) || $data->status != 0) {
+            //throw new Exception('Invalid receipt');
+            $this->ErrorReturn("status error");
+        }else{
+            $product_id = $data->receipt->product_id;//产品ID
+            $transaction_id = $data->receipt->transaction_id;
+           // $money = $data->receipt->money;
+           // $num = $data->receipt->num;
+            if(!empty($transaction_id)){
+                $transaction = Db::connect('admin_db')->name('pay')->find("transaction_id={$transaction_id}");
+               // $transaction = M("user_pay")->where("transaction_id={$transaction_id}")->find();
+                if(empty($transaction)){
+                    if(!empty($product_id)&&!empty($uid)){
+                        $data = Db::connect('admin_db')->name('ios_buy')->find("product_id='{$product_id}'");
+                       // $data = M("ios_buy")->where("product_id='{$product_id}'")->find();
+                        if(!empty($data)){
+                            $data['order_number'] = $this->make_order_number();
+                            $data['uid'] = $uid;
+                            $data['money'] = $data['money'];
+                            $data['num'] = $data['num'];
+                            //$data['receipt'] = $receipt;//IOS内购凭证
+                            $data['transaction_id'] = $transaction_id;//IOS交易的标识，唯一
+                            //添加IOS内购订单
+                            update_IOS_buy($data);
+                            $result['info'] = 'Success';
+                            $this->SuccessReturn ( $result );
+                        }else{
+                            $this->ErrorReturn("select data is empty");
+                        }
+                    }else{
+                        $this->ErrorReturn("product_id or uid is empty");
+                    }
+                }else{
+                    $this->ErrorReturn("transaction_id is exist");
+                }
+            }else{
+                $this->ErrorReturn("transaction_id is empty");
+            }
+        }
+        //返回产品的信息
+    }
+    
+    /**
+     * author liuqin
+     * 生成订单编号
+     */
+    public function make_order_number(){
+        //$order_prefix = 'leader';
+        $order = mktime();
+        return $order;
+    }
+    
+     /**
+      * author liuqin
+     *支付接口
+     */
+    public function ios_money(){
+        $is_user=array();
+        //$is_user = M("ios_buy")->select();
+        $is_user = Db::connect('admin_db')->name('ios_buy')->select();
+        $result['data'] = $is_user;
+        $this->SuccessReturn($result);
+    }
+    public function Index() {
+        $data = array();
+       // $scale = C('aConfig');
+        $id = 1;//I('uid');//用户id
+       // $id=I('get.uid');
+     //   $num = (int)I('num');//年份
+        $money = 0.1;//I('money');//金额
+        $type = 3;//支付类型，1：支付宝支付，2：微信支付 3：银联
+        if(empty($num)){
+            $num=1;
+        }
+      //  $year=date('Y-',time())+$num-1;
+        if(empty($id)){
+            $this->ErrorReturn('用户id不能为空',0);
+        }
+        if(empty($money)){
+            $this->ErrorReturn('支付金额不能为空',0);
+        }
+        $data['uid'] = $id;
+        $data['cost'] = $money/100;
+        $data['type'] = $type;
+        $data['date'] = date('Y-m-d',time());
+        //$data['year_end']=$year;
+       // $data['limit_date'] = $year.'-12-31';
+        $data ['order_number'] = date ( 'YmdHis' );
+        $data ['pay_way'] = "app";
+        $ress = Db::connect('admin_db')->name('pay')->insertGetId($data);
+       // $ress = M("user_pay")->add($data);
+        if($ress){
+                $unionpay_params ["orderId"] = $data ["order_number"]; // 商户订单号，8-32位数字字母，不能含“-”或“_”
+                $unionpay_params ["txnTime"] = $data ["order_number"]; // 订单发送时间，格式为YYYYMMDDhhmmss
+                $unionpay_params ["txnAmt"] = $money;//$data['cost']; // 交易金额，单位分
+               // require_once('./ThinkPHP/Library/Btten/Payment/Wpay/order.php');
+                require './extend/common/function.php';
+                $res = get_union_tn ( $unionpay_params );// 获取tn值
+                if ($res) {
+                    $result ['tn'] = $res ['tn']; // tn值
+                    $result ['orderId'] = $res ['orderId']; // 订单号
+                    $result ['merId'] = $res ['merId']; // 商户号
+                    $result ['respCode'] = $res ['respCode']; // 应答码
+                    $result ['id'] = $ress;//订单id
+                    $this->SuccessReturn ( $result );
+                } else {
+                    $this->ErrorReturn ( '获取tn值失败', 0 );
+                }
+        } else {
+            $this->ErrorReturn ( '下单失败', 0 );
+        }
+    }
+    
+    /**
+     * author liuqin
+     * 银联支付成功后回调
+     */
+    public function UnionNotify() {
+        $aBack = $_POST;
+        if (! empty ( $aBack ['signature'] )) {
+            $res = unionpay_notify ( $aBack );
+        } else {
+            $orderId = $aBack['orderId'];
+            $select_data = Db::connect('admin_db')->name('pay')->find("order_number={$orderId}");
+          //  $select_data = M ( "user_pay" )->where ( "order_number={$orderId}" )->find ();
+            $params ["orderId"] = $select_data ["order_number"]; // 订单号
+            $params ["txnTime"] = $select_data ["txntime"]; // 订单发送时间
+            $params ["queryId"] = $select_data ["tn"]; // 流水号
+            $res = unionpay_query ( $params );
+        }
+    }
+    
+    /**
+     * author liuqin
+     * APP 银联支付成功后，回调接口
+     */
+    public function AppNotify() {
+        header ( 'Content-type:application/json;charset=utf-8' );//header写明Content-type
+        $data = file_get_contents ( 'php://input', 'r' );//获取APP传的参数
+        require './extend/common/function.php';
+        $res = validate_sign($data);//验证签名
+        if($res){
+            $orderId = '20170410192935';//session ( "union_order_id" );
+          //  $select_data = M ( "user_pay" )->where ( "order_number={$orderId}" )->find ();
+            $datas['pay_date'] = time();
+            $datas['status'] = 1;
+            $map['order_number'] = $orserId;
+            Db::connect('admin_db')->name('pay')->where($map)->update($datas);
+	//M("user_pay")->where("order_number={$orderId}")->save($datas);
+            $result ['status'] = 1;
+            $result ['info'] = '签名验证成功';
+            $this->SuccessReturn ( $result );
+        }else{
+            $this->ErrorReturn ( '签名验证失败', 0 );
+        }
+    }
+    
+    
+    /**
+     * author liuqin
+     * 手动查询银联订单状态
+     */
+    public function query() {
+        if(!empty($_GET['id'])){
+            $id = $_GET['id'];
+        }
+        if(!empty($_POST['id'])){
+            $id = $_POST['id'];
+        }
+        // $id = I ( "id" );
+         $params = Db::connect('admin_db')->name('pay')->find("id={$id}");
+       // $params = M ( "user_pay" )->where ( "id={$id}" )->find();
+        $unionpay_query_params ['orderId'] = $params ['order_number']; // 订单号
+        $unionpay_query_params ["txnTime"] = $params ["order_number"]; // 被查询的交易的订单发送时间
+        $unionpay_query_params ['queryId'] = $params ['queryid']; // 订单号
+        $res = unionpay_query ( $unionpay_query_params );
+        $result ['orderId'] = $res ['orderId']; // 订单号
+        $result ['merId'] = $res ['merId']; // 商户号origRespCode
+        $result ['respCode'] = $res ['respCode']; // 应答码
+        $result ['origRespCode'] = $res ['origRespCode']; // 应答码
+        $this->SuccessReturn ( $result );
+    }
+    
+
+	
+}

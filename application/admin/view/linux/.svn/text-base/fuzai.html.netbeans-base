@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>负载均衡</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+</head>
+<body>
+	<div class="admin-main">
+			<blockquote class="layui-elem-quote">
+				<p style="color: red;">负载均衡解决方案实现原理以及概论.</p>
+				原理：
+				<a href="#" >用N台服务器构成一个松耦合的多处理器系统(对外来说，他们就是一个服务器)，它们之间通过网络实现通信。让N台服务器之间相互协作，共同承载一个网站的请求压力。在集群服务器架构中，当主服务器故障时，备份服务器能够自动接管主服务器的工作，并及时切换过去，以实现对用户的不间断服务。</a>
+				<p style="color: red;">session复制/共享：
+					<a href="#">在访问系统的会话过程中，用户登录系统后，不管访问系统的任何资源地址都不需要重复登录，这里面servlet容易保存了该用户的会话(session)。如果两个tomcat(A、B)提供集群服务时候，用户在A-tomcat上登录，接下来的请求web服务器根据策略分发到B-tomcat，因为B-tomcat没有保存用户的会话(session)信息，不知道其登录，会跳转到登录界面。
+					这时候我们需要让B-tomcat也保存有A-tomcat的会话，我们可以使用tomcat的session复制实现或者通过其他手段让session共享。最好的解决方案是放在缓存服务器中推荐两种缓存服务器：Memcache、Redis
+					要求：Memecache、Redis必须是集群</a>
+				</p>
+				<p>我们最常用的就是Nginx实现反向代理与负载均衡:
+					<a href="http://www.linuxidc.com/Linux/2015-07/120738.htm" target="_blank">http://www.linuxidc.com/Linux/2015-07/120738.htm</a>
+					<a href="http://freeloda.blog.51cto.com/2033581/1288553">http://freeloda.blog.51cto.com/2033581/1288553</a>
+				</p>
+				<p>交流群：136237319</p>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>负载均衡服务器高并发</legend>
+				<div class="layui-field-box">
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>企业级应用常见的架构图</legend>
+						<div class="layui-field-box">
+							<p><img src="__ROOT__/public/beginneradmin/images/fuzai.png"></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>高并发初期解决方案：</legend>
+						<div class="layui-field-box">
+							<p>1、增大服务器的CPU <cite style="color: #1AA094;">增加内存条 </cite>增加到二块网卡</p>
+							<p>2、优化服务器配置<cite style="color: #1AA094;">下个目录会单独给出解决方案 </cite></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>通常解决服务器负载问题，都会通过多服务器分载来解决。常见的解决方案有：</legend>
+						<div class="layui-field-box">
+							<p>1、网站入口通过分站链接负载</p>
+							<p>2、DNS轮询</p>
+							<p>1、F5物理设备</p>
+							<p>2、Nginx等轻量级架构</p>
+							<p>那我们看看Nginx是如何实现负载均衡的，Nginx的upstream目前支持以下几种方式的分配 </p>
+							<p>1、轮询（默认）<cite style="color: #1AA094;">每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。</cite></p>
+ 							<p>2、weight<cite style="color: #1AA094;">指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。</cite></p>
+							<p>2、ip_hash<cite style="color: #1AA094;">每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。</cite></p>
+							<p>3、fair（第三方）<cite style="color: #1AA094;">按后端服务器的响应时间来分配请求，响应时间短的优先分配。</cite></p>
+							<p>4、url_hash（第三方）<cite style="color: #1AA094;">按访问url的hash结果来分配请求，使每个url定向到同一个后端服务器，后端服务器为缓存时比较有效。</cite></p>
+
+							<p>Upstream配置如何实现负载---nginx 的 upstream默认是以轮询的方式实现负载均衡，这种方式中，每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。   </p>
+							<p><img src="__ROOT__/public/beginneradmin/images/fuzai1.png"></p>
+							<p>当有请求到www.test1.com/www.test2.com 时请求会被分发到对应的upstream设置的服务器列表上。test2的每一次请求分发的服务器都是随机的，就是第一种情况列举的。而test1刚是根据来访问ip的hashid来分发到指定的服务器，也就是说该IP的请求都是转到这个指定的服务器上。</p>
+							<p>根据服务器的本身的性能差别及职能，可以设置不同的参数控制。</p>
+							<p>down 表示负载过重或者不参与负载</p>
+							<p>weight 权重过大代表承担的负载就越大</p>
+							<p>backup 其它服务器时或down时才会请求backup服务器</p>
+							<p>max_fails 失败超过指定次数会暂停或请求转往其它服务器</p>
+							<p>fail_timeout 失败超过指定次数后暂停时间</p>
+							<p>正常情况下架构简单的话， ip_hash可以解决Session问题</p>
+							<p><img src="__ROOT__/public/beginneradmin/images/fuzai2.png"></p>
+							<p>这个时候ip_hash 收到的请求都是来自固定IP代理的请求，如果代理IP的负载过高就会导致ip_hash对应的服务器负载压力过大，这样ip_hash就失去了负载均衡的作用了。</p>
+							<p>ip_hash hash也好，upstream也好，都有个很严重的弊端--假设其中某台down掉了，估计是两种方案
+							<p>1：其他的应用服务器接纳这台的用户，重新生成session，这种情况下，当应用服务器恢复以后，这些老用户就回不来了</p>
+							<p>2：放弃这些用户，直到应用服务器重新启动，这样保障部分用户一直ok（个人欣赏这种做法）</p>
+							</p>
+ 							<p>所以下个目录会列出memcache的原理</p>
+						</div>
+					</fieldset>
+					
+				</div>
+			</fieldset>
+		</div>
+</body>
+<script type="text/javascript">
+	var root = "__ROOT__";
+</script>
+</html>

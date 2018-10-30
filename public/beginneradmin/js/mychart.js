@@ -1,0 +1,1 @@
+"use strict";function myChart(t,e){var a=echarts.init(document.getElementById(t)),r=JSON.parse(document.getElementById(t).getAttribute(e));a.setOption(r)}

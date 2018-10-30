@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Table</title>
+		<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+        <link rel="stylesheet" href="__ROOT__/public/admin/css/page.css">
+		<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/global.css" media="all">
+<!--		<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/table.css" />-->
+	</head>
+
+	<body>
+		<div class="admin-main">
+
+			<blockquote class="layui-elem-quote">
+				<input type="file" name="excel" class="layui-upload-file">
+				<a href="javascript:;" class="layui-btn layui-btn-small" id="deleteall">
+					<i class="layui-icon">&#xe608;</i> 删除信息
+				</a>
+				<a href="javascript:printme()" class="layui-btn layui-btn-small" id="import">
+					<i class="layui-icon">&#xe608;</i> 打印信息
+				</a>
+				<a href="export" class="layui-btn layui-btn-small" id="export">
+					<i class="fa fa-shopping-cart" aria-hidden="true"></i> 导出信息
+				</a>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>数据列表</legend>
+				<div class="layui-field-box table-scrollable">
+					<table class="site-table table-hover" id="luyanlist">
+						<thead>
+							<tr>
+								<th><input type="checkbox" id="selected-all"></th>
+								<th>姓名</th>
+								<th>性别</th>
+								<th>年龄</th>
+								<th>备注</th>
+							</tr>
+						</thead>
+						<tbody>
+                            {volist name="lists" id="vo"}
+							<tr>
+								<td><input type="checkbox" name="mytableid[]" value="{$vo.id}"></td>
+								<td>{$vo.name}</td>
+								<td>{$vo.sex}</td>
+								<td>{$vo.age}</td>
+								<td>{$vo.mark}</td>
+							
+							</tr>
+                            {/volist}
+						</tbody>
+					</table>
+
+				</div>
+			</fieldset>
+			<div class="admin-table-page">
+				<div id="page" class="page">
+				</div>
+			</div>
+		</div>
+        <div id="printdoc" style="width:70%; display: none;"></div>
+        <script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+		<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+        <!--打印功能相关js开始-->
+        <script type="text/javascript" src="__ROOT__/public/jquery/jquery-1.7.2.js"></script>
+        <script src="__ROOT__/public/jquery/jquery.jqprint.js" type="text/javascript"></script>
+        <!--打印功能相关js结束-->
+		<script>
+            layui.use('code',function(){
+                layui.code({
+                    encode:true,
+                    elem:'zi',
+                });
+            })
+            layui.use('layer',function(){
+                var layer = layui.layer;
+            })
+            //打印
+            function printme() {
+                        $("#luyanlist").css("width","100%");
+                         $("#luyanlist").css("font-size","12px");
+                        //$("table tr :nth-child(6)").css('width', '70px');
+                        $("#luyanlist tr :first-child").css('display', 'none');
+                       // $("#luyanlist tr :nth-child(8)").css('display', 'none');
+                    var content = $(".table-scrollable").html(); 
+                        $("#luyanlist tr :first-child").css('display', '');
+                      //  $("#luyanlist tr :nth-child(8)").css('display', '');
+                         $("#luyanlist").css("font-size","14px");
+                    $("#printdoc").html(content);
+                    $("#printdoc").jqprint();
+            }
+            $("#selected-all").click(function(){
+                var a=$("#selected-all").is(':checked');
+               // alert(a);
+                if(a===true){
+                     $("input[name='mytableid[]']").attr("checked",$(this).attr("checked",true));
+                }else{
+                  //  alert(1)
+                    $("input[name='mytableid[]']").removeAttr("checked");
+                }
+            });
+            //批量删除
+            $('#deleteall').click(function() {
+                    var tableid = 'mytable';
+                    if ($("input[name='" + tableid+ "id[]']:checked").length <= 0) {
+                            layer.msg("请选择需要删除的数据");
+                            return false;
+                    }
+                    var idtag = tableid + 'id[]';
+                    var ids = document.getElementsByName(idtag);
+                    var idsarr = new Array();
+                    for (var i = 0; i < ids.length; i++) {
+                            if (ids[i].checked) {
+                                    idsarr.push(ids[i].value);
+                            }
+                    }
+                    layer.confirm('确定删除该条数据吗？',{icon: 1, title:'提示', btn: ['确定','取消']},
+                    function(){
+                        $.ajax({
+                            type:'post',
+                            url:"{:url('tables/deletes')}",
+                            data : {
+                                    'id' : idsarr,
+                                    traditional : true
+                            },
+                            dataType:'json',
+                            success:function(data){
+                                if(data.code == 1){
+                                    layer.msg(data.msg);
+                                    setTimeout(function(){
+                                        window.location.reload();
+
+                                        var index = parent.layer.getFrameIndex(window.name);
+                                        parent.layer.close(index);
+                                    },1000);
+                                }else if(data.code == 0){
+                                    layer.msg(data.msg);
+                                }
+                            }
+                        });
+                    });
+            });
+		</script>
+<script type="text/javascript">
+	layui.use('upload',function(){
+        layui.upload({
+            url:"{:url('tables/upload_excel')}",
+            method:'post',
+            type:'file',
+            ext:'xls|xlsx',
+            title:'导入Excel',
+            before:function(input){
+                var load = layer.load(1,{shade:false});
+            },
+            success:function(json){
+                if(json.code == '1'){
+                    $.ajax({
+                        url:"{:url('tables/excel')}",
+                        type:'post',
+                        data:{'url':json.url},
+                        dataType:'json',
+                        success:function(json){
+                            layer.closeAll();
+                            if(json.code == '1'){
+                                layer.msg(json.msg);
+                                setTimeout(function(){
+                                    window.location.reload();
+                                },1000)
+                            }else{
+                                layer.msg(json.msg,{time:5000});
+                            }
+                        }
+                    })
+                }else{
+                    layer.msg(json.msg);
+                }
+            }
+        })
+    })
+</script>
+	</body>
+
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>前端组件-弹出层</title>
+</head>
+<body>
+    <!--
+        @file index.html
+        @author 黄河水
+        @create 2017-04-05
+        @description
+            一个点击弹出层的示例页面
+    -->
+
+    <!-- 需要插入弹出层的节点：必须，id必须 -->
+    <div id="popup"></div>
+
+    <!-- 主程序：必须 -->
+    <script src="__ROOT__/public/admin/popup/static/js/popup.js"></script>
+    <script>
+        
+        //弹出层函数调用，传入一个配置对象
+        popup({
+            node: "popup",  //需要弹出的节点id
+            type: {
+                show: true,     //是否显示主对象
+                main: "input",  //主对象的标签
+                type: "text",   //主对象type属性
+                class: []       //主对象样式引入的class,元素为string
+            },
+            bgColor: "",        //弹出层的背景色
+            bdColor: "",        //弹出层边框颜色
+            arrowPosition: ""   //弹出层箭头位置（百分比）
+        });
+    </script>
+</body>
+</html>

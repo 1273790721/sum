@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>unison+inotify实现文件同步</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/css/main.css" />
+</head>
+<body>
+<div class="admin-main">
+			<blockquote class="layui-elem-quote">
+				<p style="color: red;">unison+inotify实现文件同步</p>
+				Unison简介:
+				<a href="#" >Unison是windows和unix平台下都可以使用的文件同步工具，它能使两个文件夹（本地或网络上的）保持内容的一致。Unison有文字界面和图形界面，这里只介绍如何在文字界面下使用. unison拥有其它一些同步工具或文件系统的相同特性，但也有自己的特点： </a>
+				<p style="color: red;">跨平台使用:
+					<a href="#">可保证两台服务器的代码文件和资源文件双向实时同步</a>
+				</p>
+				<p>只要是能连通的两台主机，就可以运行unison，可以直接使用socket连接或安全的ssh连接方式，对带宽的要求不高，使用类似rsync的压缩传输协议。</p>
+				<p>lnux web服务器静态资源的处理 unison+inotify双向同步:
+					<a href="http://www.cnblogs.com/MYSQLZOUQI/p/5184642.html" target="_blank">http://www.cnblogs.com/MYSQLZOUQI/p/5184642.html</a>
+				</p>
+				<p style="color: red;">其中unison的路径是:
+					<a href="http://www.seas.upenn.edu/~bcpierce/unison//download/releases/unison-2.40.63/unison-2.40.63.tar.gz">http://www.seas.upenn.edu/~bcpierce/unison//download/releases/unison-2.40.63/unison-2.40.63.tar.gz</a>
+				</p>
+				<p style="color: red;">inotify tool链接为:
+					<a href="https://test.360guanggu.com/inotify-tools-3.14.tar.gz">https://test.360guanggu.com/inotify-tools-3.14.tar.gz</a>
+				</p>
+				<p>只要是能连通的两台主机，就可以运行unison，可以直接使用socket连接或安全的ssh连接方式，对带宽的要求不高，使用类似rsync的压缩传输协议。</p>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>使用方法</legend>
+				<div class="layui-field-box">
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>unison提供两种远程通信方式</legend>
+						<div class="layui-field-box">
+							<p>1、远程shell，由ssh工具完成，类似于rsync压缩传输协议</p>
+							<p>2、socket，要求发送tcp包进行通信，数据传输不安全，不建议使用</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>一、两台机器：</legend>
+						<div class="layui-field-box">
+							<p>192.168.11.11 vm1 增加到二块网卡</p>
+							<p>192.168.11.12 vm2</p>
+							<p>注意：两边都要安装Unison！！ </p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>二、在vm1上编译安装Unison</legend>
+						<div class="layui-field-box">
+							<p>Linux下通过源码包编译安装Unison时，需要用到Objective Caml compiler。</p>
+							<p>通过以下方式安装</p>
+							<p><img src="../../public/beginneradmin/images/unison1.png"></p>
+							<p>编译安装Unison</p>
+							<p><img src="../../public/beginneradmin/images/unison2.png"></p>
+							<p>make install出现错误的原因在与Unison默认是将文件Copy到/当前用户/bin目录下，但Linux默认是没有该目录的，因此我们需要将生成的可执行文件unison复制到系统的PATH目录。<cite style="color: #1AA094;">安装 unision时,make install报错时,cp: cannot create regular file `/root/bin/': Is a directory;先mkdir /root/bin/</cite></p>
+ 							<p>make install的时候会出错，默认会在当前目录下生成可执行文件unison，将其复制到系统的PATH目录</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>三、配置ssh key信任</legend>
+						<div class="layui-field-box">
+							<p>做系统管理员，我们经常会有使用ssh 192.168.1.xx /bin/xx.sh 这样的命令来调去执行其它机器上的脚本。故我们希望在执行的时候不需要密码，达到无需交互的目的。</p>
+							<p>实例：</p>
+							<p>实现A->B执行命令无需密码，无需交互。</p>
+							<p>1、在A机器上生成KEY文件，</p>
+							<p><img src="../../public/beginneradmin/images/unison3.png"></p>
+							<p>这里我们就生成要用的KEY文件了</p>
+ 							<p><img src="../../public/beginneradmin/images/unison4.png"></p>
+ 							<p>两个文件分别是私钥和公钥</p>
+ 							<p>接下来把你要的公钥文件放到你要登陆的机器上的对应目录下就可以了。</p>
+ 							<p><img src="../../public/beginneradmin/images/unison5.png"></p>
+ 							<p>这样传到你的服务器上就可以了！然后我们接下来从A登录到B的时候你就会发现已经不需要密码了！</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>四、生成unison目录和文件</legend>
+						<div class="layui-field-box">
+							<p>将本机的目录/data/和远端主机的/data/进行同步。一般的，需要两台机能ssh连接。</p>
+							<p>注意：在主机和目录间又多加了一个 "/"</p>
+							<p>两边都创建/data目录</p>
+							<p>mkdir /data</p>
+							<p>修改两台服务器的unison配置文件，输入以下内容</p>
+							<p>[unison@vm1 ~]$ vi /root/.unison/default.prf</p>
+ 							<p><img src="../../public/beginneradmin/images/unison6.png"></p>
+ 							<p>运行unison</p>
+ 							<p>[root@steven ~]# unison</p>
+ 							<p>然后就是测试工作了：</p>
+ 							<p>[root@vm2 ~]# cd /data/ ;echo 23323 >33.txt ; unison</p>
+ 							<p>[root@vm1 ~]# cd /data/; echo defd >22.txt ; unison</p>
+ 							<p>注意</p>
+ 							<p>1、如果要保持文件的源权限，需要使用可以chown的用户来同步，一般使用root用户来同步。</p>
+ 							<p>2、可能出现的问题是在unison同步的时候 ，如果提示输入密码，需要做ssh互信关系</p>
+ 							<p>3、如果是权限不对，注意用户的权限，还有是 lock文件 可以删除.unison/ara1da075598bd182a68b3563be920002b类似文件，再重新执行unison</p>
+ 							<p><img src="../../public/beginneradmin/images/unison7.png"></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>五、安装Inotify-tools工具，实时触发unison进行同步</legend>
+						<div class="layui-field-box">
+							<p>ll /proc/sys/fs/inotify </p>
+							<p>-rw-r--r-- 1 root root 0 Mar 7 02:17 max_queued_events</p>
+							<p>-rw-r--r-- 1 root root 0 Mar 7 02:17 max_user_instances</p>
+							<p>-rw-r--r-- 1 root root 0 Mar 7 02:17 max_user_watches</p>
+							<p>备注：Linux下支持inotify的内核最小为2.6.13，可以输入命令：uname -a查看内核</p>
+							<p>安装inotify-tools</p>
+ 							<p><img src="../../public/beginneradmin/images/unison8.png"></p>
+ 							<p>设置系统环境变量，添加软连接</p>
+ 							<p><img src="../../public/beginneradmin/images/unison9.png"></p>
+ 							<p>vi /etc/sysctl.conf #添加以下代码</p>
+ 							<p>fs.inotify.max_user_instances=65535</p>
+ 							<p>创建脚本，实时触发rsync进行同步</p>
+ 							<p>vi /root/unison.sh</p>
+ 							<p><img src="../../public/beginneradmin/images/unison10.png"></p>
+ 							<p>设置脚本开机自动执行</p>
+ 							<p>vi /etc/rc.d/rc.local</p>
+ 							<p><img src="../../public/beginneradmin/images/unison11.png"></p>
+ 							<p>inotify报错时<cite style="color: #1AA094;">error while loading shared libraries的解決方法</cite></p>
+ 							<p>./tests: error while loading shared libraries: xxx.so.0:cannot open shared object file: No such file or directory</p>
+ 							<p>出现这类错误表示，系统不知道xxx.so放在哪个目录下，这时候就要在/etc/ld.so.conf中加入xxx.so所在的目录。</p>
+ 							<p>一般而言，有很多的so会存放在/usr/local/lib这个目录底下，去这个目录底下找，果然发现自己所需要的.so文件。</p>
+ 							<p>所以，在/etc/ld.so.conf中加入/usr/local/lib这一行，保存之后，再运行：/sbin/ldconfig –v更新一下配置即可。</p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>注意：上面实验只是在vm1上安装inotify和配置unison配置文件，如果需要两边都inotify触发，那么需要vm2上也要配置default.prf和安装inotify</legend>
+						<div class="layui-field-box">
+							<p>unison的弊端：没有rsync那样只同步新创建或者修改的文件，不同步被删除的文件（-nodeletion选项），unison会同步被删除的文件，A机器删除了1.txt文件，也会删除B机器上1.txt文件</p>
+							<p>保持完全同步</p>
+							<p>-nodeletion：</p>
+							<p>nodeletion= /data/</p>
+							<p>unison</p>
+							<p>Fatal error: /data (given as argument to 'nodeletion' preference)</p>
+ 							<p>is not one of the current roots:</p>
+ 							<p>  /data/</p>
+ 							<p>  ssh://root@192.168.1.22//data/</p>
+ 							<p>-nodeletion无用，一定要是子目录才行，比如nodeletion= /data/tmp</p>
+ 							<p>fs.inotify.max_user_instances=65535</p>
+ 							<p>创建脚本，实时触发rsync进行同步</p>
+ 							<p>vi /root/unison.sh</p>
+ 							<p><img src="../../public/beginneradmin/images/unison10.png"></p>
+ 							<p>设置脚本开机自动执行</p>
+ 							<p>vi /etc/rc.d/rc.local</p>
+ 							<p><img src="../../public/beginneradmin/images/unison11.png"></p>
+						</div>
+					</fieldset>
+					<fieldset class="layui-elem-field layui-field-title">
+						<legend>注意：上面实验只是在vm1上安装inotify和配置unison配置文件，如果需要两边都inotify触发，那么需要vm2上也要配置default.prf和安装inotify</legend>
+						<div class="layui-field-box">
+							<p>unison的弊端：没有rsync那样只同步新创建或者修改的文件，不同步被删除的文件（-nodeletion选项），unison会同步被删除的文件，A机器删除了1.txt文件，也会删除B机器上1.txt文件</p>
+							<p>保持完全同步</p>
+							<p>-nodeletion：</p>
+							<p>nodeletion= /data/</p>
+							<p>unison</p>
+							<p>Fatal error: /data (given as argument to 'nodeletion' preference)</p>
+ 							<p>is not one of the current roots:</p>
+ 							<p>  /data/</p>
+ 							<p>  ssh://root@192.168.1.22//data/</p>
+ 							<p>-nodeletion无用，一定要是子目录才行，比如nodeletion= /data/tmp</p>
+ 							<p>fs.inotify.max_user_instances=65535</p>
+ 							<p>创建脚本，实时触发rsync进行同步</p>
+ 							<p>vi /root/unison.sh</p>
+ 							<p><img src="../../public/beginneradmin/images/unison10.png"></p>
+ 							<p>设置脚本开机自动执行</p>
+ 							<p>vi /etc/rc.d/rc.local</p>
+ 							<p><img src="../../public/beginneradmin/images/unison11.png"></p>
+						</div>
+					</fieldset>
+				</div>
+			</fieldset>
+		</div>	
+</body>
+</html>

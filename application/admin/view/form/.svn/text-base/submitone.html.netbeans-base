@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body>
+	<form class="layui-form">
+		<div class="layui-form-item">
+			<label class="layui-form-label">姓名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="name" class="layui-input" lay-verify="required">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">性别：</label>
+			<div class="layui-input-block">
+				<input type="radio" name="sex" value="1" title="男" checked>
+				<input type="radio" name="sex" value="0" title="女">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">年龄：</label>
+			<div class="layui-input-block">
+				<input type="text" name="age" class="layui-input" lay-verify="num">
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注：</label>
+			<div class="layui-input-block">
+				<textarea name="mark" class="layui-textarea" lay-verify="required"></textarea>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<button class="layui-btn" lay-submit lay-filter="*">下一步</button>
+			</div>
+		</div>
+	</form>
+</body>
+<blockquote class="layui-elem-quote">多表单提交前台使用说明：</blockquote>
+<blockquote class="layui-elem-quote layui-quote-nm">
+	<p>
+		1.表单验证规则参考表单提交。填写表单下一步后，数据将会存到session里面，然后跳到下一表单，例如：
+	</p>
+	<pre class="layui-code">
+		form.on('submit(*)',function(data){
+			localStorage.setItem('name',data.field.name);
+			localStorage.setItem('sex',data.field.sex);
+			localStorage.setItem('age',data.field.age);
+			localStorage.setItem('mark',data.field.mark);
+			window.location.href = "{:url('form/submittwo')}";
+			return false;
+		})
+	</pre>
+</blockquote>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="__ROOT__/public/jquery/jquery-3.2.0.min.js"></script>
+<script type="text/javascript">
+	layui.use('code',function(){
+		layui.code({
+			encode:true
+		})
+	})
+	layui.use('form', function(){
+		var form = layui.form();
+		form.verify({
+			num:function(value){
+				var reg = /^[1-9]{1}[0-9]*$/;
+				if(reg.test(value) === false){
+					return '请输入正整数';
+				}
+			}
+		})
+		form.on('submit(*)',function(data){
+			localStorage.setItem('name',data.field.name);
+			localStorage.setItem('sex',data.field.sex);
+			localStorage.setItem('age',data.field.age);
+			localStorage.setItem('mark',data.field.mark);
+			window.location.href = "{:url('form/submittwo')}";
+			return false;
+		})
+	});
+</script>
+</html>

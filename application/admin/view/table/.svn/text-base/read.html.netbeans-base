@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="__ROOT__/public/beginneradmin/plugins/layui/css/layui.css">
+</head>
+<body>
+	<form class="layui-form">
+		<div class="layui-form-item">
+			<label class="layui-form-label">姓名：</label>
+			<div class="layui-input-block">
+				<input type="text" name="name" class="layui-input" value="{$user['name']}" readonly>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">性别：</label>
+			<div class="layui-input-block">
+				{eq name="user['sex']" value="0"}
+					<input type="text" name="sex" class="layui-input" value="女" readonly>
+				{/eq}
+				{eq name="user['sex']" value="1"}
+					<input type="text" name="sex" class="layui-input" value="男" readonly>
+				{/eq}
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">年龄：</label>
+			<div class="layui-input-block">
+				<input type="text" name="age" class="layui-input" value="{$user['age']}" readonly>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注：</label>
+			<div class="layui-input-block">
+				<textarea name="mark" class="layui-textarea" readonly>{$user['mark']}</textarea>
+			</div>
+		</div>
+	</form>
+</body>
+<script type="text/javascript" src="__ROOT__/public/beginneradmin/plugins/layui/layui.js"></script>
+</html>
